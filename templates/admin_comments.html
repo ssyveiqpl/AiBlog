@@ -25,9 +25,11 @@
             <td style="font-size:.82em;color:var(--text-muted);">{{ c.created_at }}</td>
             <td class="actions">
                 <form method="POST" action="{{ url_for('approve_comment', comment_id=c.id) }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     <button type="submit" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">通过</button>
                 </form>
                 <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
                 </form>
             </td>
@@ -56,6 +58,7 @@
             <td style="font-size:.82em;color:var(--text-muted);">{{ c.created_at }}</td>
             <td class="actions">
                 <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
                 </form>
             </td>

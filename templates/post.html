@@ -1,10 +1,19 @@
 {% extends "base.html" %}
 {% block title %}{{ post.title }}{% endblock %}
+{% block meta %}
+<meta name="description" content="{{ post.content[:200]|e }}">
+<meta property="og:title" content="{{ post.title|e }}">
+<meta property="og:description" content="{{ post.content[:200]|e }}">
+{% if post.cover_image %}<meta property="og:image" content="{{ post.cover_image }}">{% endif %}
+<meta property="og:url" content="{{ request.url }}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{{ request.url }}">
+{% endblock %}
 {% block content %}
 <div class="full-post-card">
     {% if post.cover_image %}
-    <div style="width:100%;height:200px;border-radius:8px;overflow:hidden;margin-bottom:16px;background:var(--code-bg);">
-        <img src="{{ post.cover_image }}" alt="{{ post.title }}" style="width:100%;height:100%;object-fit:cover;">
+    <div style="width:100%;max-height:300px;border-radius:8px;overflow:hidden;margin-bottom:16px;background:var(--code-bg);display:flex;align-items:center;justify-content:center;">
+        <img src="{{ post.cover_image }}" alt="{{ post.title }}" style="max-width:100%;max-height:300px;object-fit:contain;">
     </div>
     {% endif %}
     {% if post.category or post.tags %}
@@ -17,7 +26,10 @@
     </div>
     {% endif %}
     <h1>{{ post.title }}</h1>
-    <time style="font-size:.82em;color:var(--text-muted);">{{ post.created_at }}</time>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <time style="font-size:.82em;color:var(--text-muted);">{{ post.created_at }}</time>
+        <span style="font-size:.78em;color:var(--text-muted);"><i class="far fa-clock"></i> {{ reading_time }} 分钟阅读</span>
+    </div>
     {% if post.series_id and series %}
     <div style="margin-top:8px;">
         <span style="font-size:.82em;color:var(--text-secondary);">系列：</span>
@@ -77,6 +89,7 @@
 <div class="full-post-card" style="margin-top:16px;">
     <h2 style="font-size:1em;margin-bottom:16px;">发表评论</h2>
     <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
         <input type="text" name="name" placeholder="你的名字" required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);">
         <textarea name="content" rows="4" placeholder="写下你的评论..." required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
         <button type="submit" class="btn btn-primary">提交评论</button>

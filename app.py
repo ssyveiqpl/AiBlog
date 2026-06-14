@@ -2,26 +2,37 @@ import sqlite3
 import functools
 import os
 import uuid
+import secrets
 import zipfile
 import io
 import re
 from pathlib import Path
 from datetime import datetime
+from xml.sax.saxutils import escape as xml_escape
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
     flash, session, g, send_from_directory, Response, jsonify, send_file
 )
 from markdown import markdown
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = "your-secret-key-change-in-production"
+app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+app.config["SESSION_PERMANENT"] = True
+app.config["PERMANENT_SESSION_LIFETIME"] = 86400 * 7
+app.config["TESTING"] = os.environ.get("FLASK_TESTING") == "1"
+
 DATABASE = Path(__file__).parent / "blog.db"
 UPLOAD_FOLDER = Path(__file__).parent / "static" / "uploads"
 UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_FOLDER)
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp", "svg"}
 POSTS_PER_PAGE = 10
+MESSAGES_PER_PAGE = 50
+
+# In-memory pageview buffer
+_pageview_buffer = []
 
 
 def get_db():
@@ -89,43 +100,39 @@ def init_db():
         description TEXT DEFAULT '',
         created_at TEXT NOT NULL
     )""")
-    try:
-        db.execute("ALTER TABLE posts ADD COLUMN category TEXT DEFAULT ''")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        db.execute("ALTER TABLE posts ADD COLUMN cover_image TEXT DEFAULT ''")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        db.execute("ALTER TABLE posts ADD COLUMN status TEXT DEFAULT 'published'")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        db.execute("ALTER TABLE posts ADD COLUMN series_id INTEGER DEFAULT NULL")
-    except sqlite3.OperationalError:
-        pass
+    # Migrations for new columns
+    for col in ("category", "cover_image", "status", "series_id"):
+        try:
+            db.execute(f"ALTER TABLE posts ADD COLUMN {col} TEXT DEFAULT ''")
+        except sqlite3.OperationalError:
+            pass
     try:
         db.execute("ALTER TABLE comments ADD COLUMN approved INTEGER DEFAULT 0")
     except sqlite3.OperationalError:
         pass
-    try:
-        db.execute("CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status)")
-    except sqlite3.OperationalError:
-        pass
+    # Indexes
+    for idx_sql in [
+        "CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status)",
+        "CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at)",
+        "CREATE INDEX IF NOT EXISTS idx_pageviews_post_date ON pageviews(post_id, date)",
+    ]:
+        try:
+            db.execute(idx_sql)
+        except sqlite3.OperationalError:
+            pass
+    # FTS5
     try:
         db.execute("""CREATE VIRTUAL TABLE IF NOT EXISTS posts_fts USING fts5(
             title, content, tags, content=posts, content_rowid=id
         )""")
-    except sqlite3.OperationalError:
-        pass
-    try:
         db.execute("""INSERT OR IGNORE INTO posts_fts(rowid, title, content, tags)
             SELECT id, title, content, tags FROM posts""")
     except sqlite3.OperationalError:
         pass
+    # Default password
     if not db.execute("SELECT 1 FROM settings WHERE key='password'").fetchone():
-        db.execute("INSERT INTO settings (key, value) VALUES ('password', 'admin123')")
+        db.execute("INSERT INTO settings (key, value) VALUES (?, ?)",
+                   ("password", generate_password_hash("admin123")))
     db.commit()
     db.close()
 
@@ -148,6 +155,18 @@ def login_required(f):
     return wrapper
 
 
+def csrf_required(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if request.method == "POST":
+            token = request.form.get("csrf_token")
+            if not token or token != session.get("csrf_token"):
+                flash("安全验证失败，请重试")
+                return redirect(request.referrer or url_for("index"))
+        return f(*args, **kwargs)
+    return wrapper
+
+
 def render_md(text):
     return markdown(text, extensions=["fenced_code", "codehilite"])
 
@@ -158,7 +177,9 @@ def allowed_file(name):
 
 def get_all_categories():
     db = get_db()
-    rows = db.execute("SELECT DISTINCT category FROM posts WHERE category != '' AND status='published' ORDER BY category").fetchall()
+    rows = db.execute(
+        "SELECT DISTINCT category FROM posts WHERE category != '' AND status='published' ORDER BY category"
+    ).fetchall()
     return [r["category"] for r in rows]
 
 
@@ -175,29 +196,80 @@ def get_all_tags():
 
 
 def record_pageview(post_id=0):
+    _pageview_buffer.append((post_id, datetime.now().strftime("%Y-%m-%d")))
+
+
+def flush_pageviews():
+    if not _pageview_buffer:
+        return
     db = get_db()
-    today = datetime.now().strftime("%Y-%m-%d")
-    row = db.execute("SELECT id FROM pageviews WHERE post_id=? AND date=?", (post_id, today)).fetchone()
-    if row:
-        db.execute("UPDATE pageviews SET count=count+1 WHERE id=?", (row["id"],))
-    else:
-        db.execute("INSERT INTO pageviews (post_id, date, count) VALUES (?, ?, 1)", (post_id, today))
+    for post_id, date in _pageview_buffer:
+        row = db.execute(
+            "SELECT id FROM pageviews WHERE post_id=? AND date=?", (post_id, date)
+        ).fetchone()
+        if row:
+            db.execute("UPDATE pageviews SET count=count+1 WHERE id=?", (row["id"],))
+        else:
+            db.execute("INSERT INTO pageviews (post_id, date, count) VALUES (?, ?, 1)", (post_id, date))
     db.commit()
+    _pageview_buffer.clear()
+
+
+@app.teardown_appcontext
+def flush_pv(_e=None):
+    if _pageview_buffer:
+        try:
+            flush_pageviews()
+        except Exception:
+            pass
 
 
 def get_stats():
     db = get_db()
-    total_posts = db.execute("SELECT COUNT(*) FROM posts WHERE status='published'").fetchone()[0]
-    total_drafts = db.execute("SELECT COUNT(*) FROM posts WHERE status='draft'").fetchone()[0]
-    total_comments = db.execute("SELECT COUNT(*) FROM comments").fetchone()[0]
-    total_pending_comments = db.execute("SELECT COUNT(*) FROM comments WHERE approved=0").fetchone()[0]
-    total_messages = db.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
-    total_views = db.execute("SELECT COALESCE(SUM(count), 0) FROM pageviews WHERE post_id!=0").fetchone()[0]
-    return {
-        "posts": total_posts, "drafts": total_drafts,
-        "comments": total_comments, "pending_comments": total_pending_comments,
-        "messages": total_messages, "views": total_views,
-    }
+    row = db.execute("""SELECT
+        (SELECT COUNT(*) FROM posts WHERE status='published') as posts,
+        (SELECT COUNT(*) FROM posts WHERE status='draft') as drafts,
+        (SELECT COUNT(*) FROM comments) as comments,
+        (SELECT COUNT(*) FROM comments WHERE approved=0) as pending_comments,
+        (SELECT COUNT(*) FROM messages) as messages,
+        (SELECT COALESCE(SUM(count),0) FROM pageviews WHERE post_id!=0) as views
+    """).fetchone()
+    return dict(row)
+
+
+def get_series_list():
+    db = get_db()
+    return db.execute("SELECT * FROM series ORDER BY name").fetchall()
+
+
+# ─── CSRF token injection ───
+@app.before_request
+def inject_csrf():
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(16)
+
+
+# ─── Security headers ───
+@app.after_request
+def add_security_headers(resp):
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("Content-Security-Policy",
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+        "img-src 'self' data: https:; font-src https://cdnjs.cloudflare.com;")
+    return resp
+
+
+# ─── Error handlers ───
+@app.errorhandler(404)
+def not_found(_e):
+    return render_template("error.html", code=404, message="页面不存在"), 404
+
+
+@app.errorhandler(500)
+def server_error(_e):
+    return render_template("error.html", code=500, message="服务器内部错误"), 500
 
 
 # ─── Index ───
@@ -288,12 +360,13 @@ def categories():
     cats = db.execute(
         "SELECT category, COUNT(*) as cnt FROM posts WHERE category != '' AND status='published' GROUP BY category ORDER BY category"
     ).fetchall()
+    # Single query for all posts grouped by category
+    all_posts = db.execute(
+        "SELECT id, title, category, created_at FROM posts WHERE category != '' AND status='published' ORDER BY created_at DESC"
+    ).fetchall()
     posts_by_cat = {}
-    for c in cats:
-        posts_by_cat[c["category"]] = db.execute(
-            "SELECT id, title, created_at FROM posts WHERE category=? AND status='published' ORDER BY created_at DESC",
-            (c["category"],)
-        ).fetchall()
+    for p in all_posts:
+        posts_by_cat.setdefault(p["category"], []).append(p)
     return render_template("categories.html", categories=cats, posts_by_cat=posts_by_cat)
 
 
@@ -358,14 +431,19 @@ def post(post_id):
                 "SELECT id, title, created_at FROM posts WHERE series_id=? AND status='published' ORDER BY created_at ASC",
                 (p["series_id"],)
             ).fetchall()
+    # reading time
+    word_count = len(p["content"].split())
+    reading_time = max(1, round(word_count / 200))
     return render_template(
         "post.html", post=p, content_html=render_md(p["content"]),
         comments=comments, related=related, series=series, series_posts=series_posts,
+        reading_time=reading_time,
     )
 
 
 # ─── Comment ───
 @app.route("/post/<int:post_id>/comment", methods=["POST"])
+@csrf_required
 def add_comment(post_id):
     db = get_db()
     p = db.execute("SELECT 1 FROM posts WHERE id=?", (post_id,)).fetchone()
@@ -397,10 +475,10 @@ def rss_feed():
     items = []
     for p in posts:
         items.append(f"""    <item>
-      <title>{p['title']}</title>
+      <title>{xml_escape(p['title'])}</title>
       <link>{site_url}/post/{p['id']}</link>
       <description><![CDATA[{render_md(p['content'])}]]></description>
-      <pubDate>{p['created_at']}</pubDate>
+      <pubDate>{xml_escape(p['created_at'])}</pubDate>
       <guid>{site_url}/post/{p['id']}</guid>
     </item>""")
     xml = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -425,37 +503,37 @@ def sitemap():
     ).fetchall()
     site_url = request.url_root.rstrip("/")
     urls = [f"""  <url>
-    <loc>{site_url}/</loc>
+    <loc>{xml_escape(site_url)}/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>{site_url}/articles</loc>
+    <loc>{xml_escape(site_url)}/articles</loc>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>{site_url}/archive</loc>
+    <loc>{xml_escape(site_url)}/archive</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>{site_url}/categories</loc>
+    <loc>{xml_escape(site_url)}/categories</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>{site_url}/projects</loc>
+    <loc>{xml_escape(site_url)}/projects</loc>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>{site_url}/message</loc>
+    <loc>{xml_escape(site_url)}/message</loc>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>{site_url}/about</loc>
+    <loc>{xml_escape(site_url)}/about</loc>
     <priority>0.6</priority>
   </url>"""]
     for p in posts:
         urls.append(f"""  <url>
-    <loc>{site_url}/post/{p['id']}</loc>
-    <lastmod>{p['created_at']}</lastmod>
+    <loc>{xml_escape(site_url)}/post/{p['id']}</loc>
+    <lastmod>{xml_escape(p['created_at'])}</lastmod>
     <priority>0.8</priority>
   </url>""")
     xml = f"""<?xml version="1.0" encoding="utf-8"?>
@@ -482,8 +560,16 @@ def message():
             db.commit()
             flash("留言成功")
             return redirect(url_for("message"))
-    messages = db.execute("SELECT * FROM messages ORDER BY created_at DESC").fetchall()
-    return render_template("message.html", messages=messages)
+    page = request.args.get("page", 1, type=int)
+    count = db.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+    total_pages = max(1, (count + MESSAGES_PER_PAGE - 1) // MESSAGES_PER_PAGE)
+    page = min(page, total_pages)
+    offset = (page - 1) * MESSAGES_PER_PAGE
+    messages = db.execute(
+        "SELECT * FROM messages ORDER BY created_at DESC LIMIT ? OFFSET ?",
+        (MESSAGES_PER_PAGE, offset)
+    ).fetchall()
+    return render_template("message.html", messages=messages, page=page, total_pages=total_pages)
 
 
 # ─── Projects ───
@@ -514,8 +600,9 @@ def login():
     if request.method == "POST":
         db = get_db()
         pw = db.execute("SELECT value FROM settings WHERE key='password'").fetchone()["value"]
-        if request.form["password"] == pw:
+        if check_password_hash(pw, request.form["password"]):
             session["logged_in"] = True
+            session.permanent = True
             return redirect(url_for("admin"))
         flash("密码错误")
     return render_template("login.html")
@@ -542,6 +629,7 @@ def admin():
 # ─── Create post ───
 @app.route("/create", methods=["GET", "POST"])
 @login_required
+@csrf_required
 def create():
     if request.method == "POST":
         title = request.form["title"].strip()
@@ -569,6 +657,7 @@ def create():
 # ─── Edit post ───
 @app.route("/edit/<int:post_id>", methods=["GET", "POST"])
 @login_required
+@csrf_required
 def edit(post_id):
     db = get_db()
     p = db.execute("SELECT * FROM posts WHERE id=?", (post_id,)).fetchone()
@@ -600,6 +689,7 @@ def edit(post_id):
 # ─── Delete post ───
 @app.route("/delete/<int:post_id>", methods=["POST"])
 @login_required
+@csrf_required
 def delete(post_id):
     db = get_db()
     db.execute("DELETE FROM comments WHERE post_id=?", (post_id,))
@@ -613,6 +703,7 @@ def delete(post_id):
 # ─── Change password ───
 @app.route("/change-password", methods=["GET", "POST"])
 @login_required
+@csrf_required
 def change_password():
     if request.method == "POST":
         old = request.form["old_password"]
@@ -622,10 +713,10 @@ def change_password():
             return render_template("change_password.html")
         db = get_db()
         pw = db.execute("SELECT value FROM settings WHERE key='password'").fetchone()["value"]
-        if old != pw:
+        if not check_password_hash(pw, old):
             flash("旧密码错误")
             return render_template("change_password.html")
-        db.execute("UPDATE settings SET value=? WHERE key='password'", (new,))
+        db.execute("UPDATE settings SET value=? WHERE key='password'", (generate_password_hash(new),))
         db.commit()
         flash("密码修改成功")
         return redirect(url_for("admin"))
@@ -635,6 +726,7 @@ def change_password():
 # ─── Admin: Friend Links ───
 @app.route("/admin/links", methods=["GET", "POST"])
 @login_required
+@csrf_required
 def admin_links():
     db = get_db()
     if request.method == "POST":
@@ -663,6 +755,7 @@ def admin_links():
 
 @app.route("/admin/links/delete/<int:link_id>", methods=["POST"])
 @login_required
+@csrf_required
 def delete_link(link_id):
     db = get_db()
     db.execute("DELETE FROM friend_links WHERE id=?", (link_id,))
@@ -687,6 +780,7 @@ def admin_comments():
 
 @app.route("/admin/comments/approve/<int:comment_id>", methods=["POST"])
 @login_required
+@csrf_required
 def approve_comment(comment_id):
     db = get_db()
     db.execute("UPDATE comments SET approved=1 WHERE id=?", (comment_id,))
@@ -697,6 +791,7 @@ def approve_comment(comment_id):
 
 @app.route("/admin/comments/delete/<int:comment_id>", methods=["POST"])
 @login_required
+@csrf_required
 def delete_comment(comment_id):
     db = get_db()
     db.execute("DELETE FROM comments WHERE id=?", (comment_id,))
@@ -706,11 +801,6 @@ def delete_comment(comment_id):
 
 
 # ─── Admin: Categories & Tags ───
-def get_series_list():
-    db = get_db()
-    return db.execute("SELECT * FROM series ORDER BY name").fetchall()
-
-
 @app.route("/admin/categories")
 @login_required
 def admin_categories():
@@ -731,6 +821,7 @@ def admin_categories():
 
 @app.route("/admin/categories/rename", methods=["POST"])
 @login_required
+@csrf_required
 def rename_category():
     old = request.form.get("old", "").strip()
     new = request.form.get("new", "").strip()
@@ -745,6 +836,7 @@ def rename_category():
 # ─── Admin: Series ───
 @app.route("/admin/series", methods=["GET", "POST"])
 @login_required
+@csrf_required
 def admin_series():
     db = get_db()
     if request.method == "POST":
@@ -773,6 +865,7 @@ def admin_series():
 
 @app.route("/admin/series/delete/<int:series_id>", methods=["POST"])
 @login_required
+@csrf_required
 def delete_series(series_id):
     db = get_db()
     db.execute("UPDATE posts SET series_id=NULL WHERE series_id=?", (series_id,))
@@ -794,7 +887,8 @@ def admin_stats():
     top_posts = db.execute(
         "SELECT p.id, p.title, COALESCE(SUM(v.count), 0) as views FROM posts p LEFT JOIN pageviews v ON v.post_id=p.id GROUP BY p.id ORDER BY views DESC LIMIT 10"
     ).fetchall()
-    return render_template("admin_stats.html", stats=stats, daily_views=daily_views, top_posts=top_posts)
+    max_views = max((d["total"] for d in daily_views), default=1)
+    return render_template("admin_stats.html", stats=stats, daily_views=daily_views, top_posts=top_posts, max_views=max_views)
 
 
 # ─── Image upload ───
@@ -851,6 +945,7 @@ cover_image: {p['cover_image']}
 # ─── Import posts from Markdown ───
 @app.route("/admin/import", methods=["GET", "POST"])
 @login_required
+@csrf_required
 def import_posts():
     if request.method == "POST":
         f = request.files.get("file")
@@ -926,4 +1021,5 @@ def import_markdown_post(db, content):
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True, port=5000, use_reloader=False)
+    debug_mode = os.environ.get("FLASK_ENV") != "production"
+    app.run(debug=debug_mode, port=5000, use_reloader=False)

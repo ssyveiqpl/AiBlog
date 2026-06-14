@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} - {{ message }}{% endblock %}
+{% block content %}
+<div class="profile-card" style="padding:60px 20px;">
+    <div style="font-size:3em;font-weight:700;color:var(--wechat-green);margin-bottom:16px;">{{ code }}</div>
+    <h1 style="margin-bottom:12px;">{{ message }}</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;margin-bottom:24px;">抱歉，你访问的页面不存在或发生了错误。</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">返回首页</a>
+</div>
+{% endblock %}

@@ -9,6 +9,7 @@
 <div class="form-card" style="margin-bottom:16px;">
     <h2 style="margin-bottom:12px;">{% if edit_link %}编辑友链{% else %}添加友链{% endif %}</h2>
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
         {% if edit_link %}<input type="hidden" name="id" value="{{ edit_link.id }}">{% endif %}
         <label for="name">名称</label>
         <input type="text" name="name" id="name" placeholder="站点名称" value="{{ edit_link.name if edit_link else '' }}" required>
@@ -37,6 +38,7 @@
             <td class="actions">
                 <a href="{{ url_for('admin_links') }}?edit={{ link.id }}" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">编辑</a>
                 <form method="POST" action="{{ url_for('delete_link', link_id=link.id) }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
                 </form>
             </td>

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlightStyle">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block meta %}{% endblock %}
 </head>
 <body>
     <div class="top-bar">
@@ -15,6 +16,8 @@
             <div class="top-bar-actions">
                 {% if session.logged_in %}
                     <a href="{{ url_for('admin') }}" style="color:var(--text-secondary);text-decoration:none;font-size:.82em;">管理</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" style="color:var(--text-secondary);text-decoration:none;font-size:.82em;">登录</a>
                 {% endif %}
                 <a href="{{ url_for('rss_feed') }}" target="_blank" title="RSS 订阅" style="color:var(--text-secondary);text-decoration:none;font-size:.85em;"><i class="fas fa-rss"></i></a>
                 <button class="theme-btn" id="themeBtn" title="切换主题">🌙</button>

@@ -7,9 +7,9 @@
 </div>
 
 <div class="stats-grid">
-    <div class="stat-item"><div class="stat-num">{{ stats.posts }}</div><div class="stat-label">文章</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.posts }}</div><div class="stat-label">已发布</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.drafts }}</div><div class="stat-label">草稿</div></div>
     <div class="stat-item"><div class="stat-num">{{ stats.comments }}</div><div class="stat-label">评论</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.messages }}</div><div class="stat-label">留言</div></div>
     <div class="stat-item"><div class="stat-num">{{ stats.views }}</div><div class="stat-label">总阅读</div></div>
 </div>
 
@@ -38,7 +38,7 @@
             <span class="info-label">{{ d.date }}</span>
             <span class="info-value">
                 <div style="height:20px;background:var(--code-bg);border-radius:3px;overflow:hidden;">
-                    <div style="height:100%;background:var(--wechat-green);width:{{ (d.total / daily_views[0].total * 100)|int if daily_views[0].total > 0 else 0 }}%;border-radius:3px;min-width:4px;"></div>
+                    <div style="height:100%;background:var(--wechat-green);width:{{ (d.total / max_views * 100)|int if max_views > 0 else 0 }}%;border-radius:3px;min-width:4px;"></div>
                 </div>
             </span>
             <span class="feed-time">{{ d.total }}</span>

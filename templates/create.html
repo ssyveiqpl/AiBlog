@@ -3,6 +3,7 @@
 {% block content %}
 <h1>写新文章</h1>
 <form method="POST" class="form-card">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     <label for="title">标题</label>
     <input type="text" name="title" id="title" placeholder="输入文章标题" required>
     <label for="category">分类</label>
@@ -32,27 +33,9 @@
             <input type="radio" name="status" value="draft"> 存为草稿
         </label>
     </div>
-    <label>内容 <small style="color:var(--text-muted);font-weight:400;">支持 Markdown</small></label>
-    <div class="editor-wrapper">
-        <div class="editor-pane">
-            <textarea name="content" id="content" rows="20" placeholder="支持 Markdown 语法" required></textarea>
-            <div class="editor-toolbar">
-                <button type="button" class="editor-btn" data-md="**" data-wrap="bold" title="加粗"><i class="fas fa-bold"></i></button>
-                <button type="button" class="editor-btn" data-md="*" data-wrap="italic" title="斜体"><i class="fas fa-italic"></i></button>
-                <button type="button" class="editor-btn" data-md="# " title="标题"><i class="fas fa-heading"></i></button>
-                <button type="button" class="editor-btn" data-md="[text](url)" title="链接"><i class="fas fa-link"></i></button>
-                <button type="button" class="editor-btn" id="uploadBtn" title="插入图片"><i class="fas fa-image"></i></button>
-                <button type="button" class="editor-btn" data-md="```\n" data-suffix="\n```" title="代码块"><i class="fas fa-code"></i></button>
-                <button type="button" class="editor-btn" data-md="> " title="引用"><i class="fas fa-quote-right"></i></button>
-                <button type="button" class="editor-btn" data-md="- " title="列表"><i class="fas fa-list"></i></button>
-                <input type="file" id="fileInput" accept="image/*" style="display:none">
-            </div>
-        </div>
-        <div class="preview-pane" id="livePreview">
-            <div class="preview-placeholder">预览区域</div>
-        </div>
-    </div>
-    <div style="display:flex;gap:10px;">
+    {% set content_value = '' %}
+    {% include "_editor.html" %}
+    <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">发布</button>
         <a href="{{ url_for('admin') }}" class="btn btn-secondary">取消</a>
     </div>
@@ -61,91 +44,9 @@
 {% block scripts %}
 <script>
 (function() {
-    var content = document.getElementById('content');
-    var preview = document.getElementById('livePreview');
-    var uploadBtn = document.getElementById('uploadBtn');
-    var fileInput = document.getElementById('fileInput');
     var coverUploadBtn = document.getElementById('coverUploadBtn');
     var coverFileInput = document.getElementById('coverFileInput');
     var coverInput = document.getElementById('cover_image');
-
-    document.querySelectorAll('.editor-btn[data-md]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var md = btn.getAttribute('data-md');
-            var suffix = btn.getAttribute('data-suffix') || '';
-            var start = content.selectionStart;
-            var end = content.selectionEnd;
-            var text = content.value;
-            var before = text.substring(0, start);
-            var selected = text.substring(start, end);
-            var after = text.substring(end);
-            var wrap = btn.getAttribute('data-wrap');
-            if (wrap === 'bold') {
-                content.value = before + '**' + selected + '**' + after;
-            } else if (wrap === 'italic') {
-                content.value = before + '*' + selected + '*' + after;
-            } else {
-                if (selected) {
-                    content.value = before + md + selected + suffix + after;
-                } else {
-                    content.value = before + md + after;
-                }
-            }
-            content.focus();
-            updatePreview();
-        });
-    });
-
-    function renderPreview(text) {
-        if (!text.trim()) return '<div class="preview-placeholder">预览区域</div>';
-        var html = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
-                return '<pre><code class="language-' + lang + '">' + code.trim() + '</code></pre>';
-            })
-            .replace(/`([^`]+)`/g, '<code>$1</code>')
-            .replace(/### (.+)/g, '<h3>$1</h3>')
-            .replace(/## (.+)/g, '<h2>$1</h2>')
-            .replace(/# (.+)/g, '<h1>$1</h1>')
-            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.+?)\*/g, '<em>$1</em>')
-            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;">')
-            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
-            .replace(/\n/g, '<br>');
-        return html;
-    }
-
-    function updatePreview() {
-        preview.innerHTML = renderPreview(content.value);
-        preview.querySelectorAll('pre code').forEach(function(block) {
-            hljs.highlightElement(block);
-        });
-    }
-
-    content.addEventListener('input', updatePreview);
-
-    uploadBtn.addEventListener('click', function() { fileInput.click(); });
-    fileInput.addEventListener('change', function() {
-        var file = fileInput.files[0];
-        if (!file) return;
-        var formData = new FormData();
-        formData.append('file', file);
-        fetch('{{ url_for("upload_image") }}', {
-            method: 'POST',
-            body: formData
-        }).then(function(r) { return r.json(); }).then(function(data) {
-            if (data.url) {
-                var md = '![](' + data.url + ')';
-                var start = content.selectionStart;
-                var end = content.selectionEnd;
-                content.value = content.value.substring(0, start) + md + content.value.substring(end);
-                updatePreview();
-            }
-        }).catch(function() { alert('上传失败'); });
-    });
-
     if (coverUploadBtn) {
         coverUploadBtn.addEventListener('click', function() { coverFileInput.click(); });
         coverFileInput.addEventListener('change', function() {
@@ -157,10 +58,8 @@
                 method: 'POST',
                 body: formData
             }).then(function(r) { return r.json(); }).then(function(data) {
-                if (data.url) {
-                    coverInput.value = data.url;
-                }
-            }).catch(function() { alert('上传失败'); });
+                if (data.url) coverInput.value = data.url;
+            }).catch(function() { console.error('cover upload failed'); });
         });
     }
 })();

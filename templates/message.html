@@ -8,6 +8,7 @@
 
 <div class="msg-form">
     <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
         <input type="text" name="name" placeholder="你的名字" required>
         <textarea name="content" placeholder="写下你想说的话..." required></textarea>
         <button type="submit" class="btn btn-primary" style="width:100%;">提交留言</button>
@@ -29,4 +30,18 @@
 {% else %}
 <p class="empty">还没有留言，来写下第一条吧</p>
 {% endfor %}
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="{{ url_for('message', page=page-1) }}" class="page-btn">&laquo; 上一页</a>
+    {% endif %}
+    {% for p in range(1, total_pages + 1) %}
+    <a href="{{ url_for('message', page=p) }}" class="page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+    {% if page < total_pages %}
+    <a href="{{ url_for('message', page=page+1) }}" class="page-btn">下一页 &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}

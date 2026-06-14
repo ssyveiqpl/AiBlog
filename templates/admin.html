@@ -45,6 +45,7 @@
             <td class="actions">
                 <a href="{{ url_for('edit', post_id=p.id) }}" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">编辑</a>
                 <form method="POST" action="{{ url_for('delete', post_id=p.id) }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
                 </form>
             </td>
