@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}首页{% endblock %}
+{% block content %}
+<div class="profile-card" style="padding:40px 20px;margin-bottom:16px;">
+    <h1 style="font-size:1.4em;margin-bottom:8px;">探索 AI 世界无限可能</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;margin-bottom:20px;">记录人工智能、机器学习与前沿技术的思考、实践与发现</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ url_for('projects') }}" class="btn btn-primary">我的开源项目</a>
+        <a href="{{ url_for('articles') }}" class="btn btn-secondary">开始阅读</a>
+    </div>
+</div>
+
+<div class="section-title">最新文章</div>
+
+{% for p in posts[:3] %}
+<div class="feed-card">
+    <div class="feed-card-header">
+        <div class="feed-avatar">AI</div>
+        <div>
+            <div class="feed-author">AI探索笔记</div>
+            <div class="feed-time">{{ p.created_at }}</div>
+        </div>
+    </div>
+    <div class="feed-cover" onclick="location.href='{{ url_for('post', post_id=p.id) }}'">
+        <i class="fas fa-file-alt"></i>
+    </div>
+    <div class="feed-body">
+        <div class="feed-title"><a href="{{ url_for('post', post_id=p.id) }}">{{ p.title }}</a></div>
+        <div class="feed-excerpt">点击阅读全文</div>
+    </div>
+</div>
+{% else %}
+<p class="empty">还没有文章</p>
+{% endfor %}
+
+<div class="full-post-card" style="margin-bottom:12px;">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;height:140px;background:var(--code-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--wechat-green);">
+            <i class="fas fa-user-astronaut"></i>
+        </div>
+        <div style="flex:2;min-width:240px;">
+            <h2 style="margin-bottom:8px;">关于我</h2>
+            <p style="color:var(--text-secondary);font-size:.85em;line-height:1.7;margin-bottom:8px;">我是林良辉，一名AI研究员兼技术博主。专注于大语言模型、计算机视觉和智能体系统的研究与应用。</p>
+            <a href="{{ url_for('about') }}" class="btn btn-secondary" style="font-size:.82em;">查看详情</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

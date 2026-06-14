@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}管理后台{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1>管理后台</h1>
+</div>
+<div class="admin-actions" style="margin-bottom:16px;">
+    <a href="{{ url_for('create') }}" class="btn btn-primary">写新文章</a>
+    <a href="{{ url_for('change_password') }}" class="btn btn-secondary">修改密码</a>
+</div>
+{% if posts %}
+<div class="table-wrap">
+    <table>
+        <tr>
+            <th>标题</th>
+            <th>时间</th>
+            <th>操作</th>
+        </tr>
+        {% for p in posts %}
+        <tr>
+            <td><a href="{{ url_for('post', post_id=p.id) }}" style="color:var(--text);text-decoration:none;">{{ p.title }}</a></td>
+            <td style="color:var(--text-muted);font-size:.82em;">{{ p.created_at }}</td>
+            <td class="actions">
+                <a href="{{ url_for('edit', post_id=p.id) }}" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">编辑</a>
+                <form method="POST" action="{{ url_for('delete', post_id=p.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% else %}
+<p class="empty">还没有文章</p>
+{% endif %}
+{% endblock %}

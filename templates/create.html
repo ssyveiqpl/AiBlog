@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}写文章{% endblock %}
+{% block content %}
+<h1>写新文章</h1>
+<form method="POST" class="form-card">
+    <label for="title">标题</label>
+    <input type="text" name="title" id="title" placeholder="输入文章标题" required>
+    <label for="content">内容</label>
+    <textarea name="content" id="content" rows="20" placeholder="支持 Markdown 语法" required></textarea>
+    <div style="display:flex;gap:10px;">
+        <button type="submit" class="btn btn-primary">发布</button>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">取消</a>
+    </div>
+</form>
+{% endblock %}

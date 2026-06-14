@@ -1,0 +1,313 @@
+:root {
+    --wechat-green: #07C160;
+    --wechat-green-hover: #06AD56;
+    --wechat-green-light: rgba(7, 193, 96, 0.08);
+    --bg: #ededed;
+    --bg-card: #fff;
+    --bg-nav: #fff;
+    --text: #191919;
+    --text-secondary: #666;
+    --text-muted: #b2b2b2;
+    --text-nav-inactive: #999;
+    --border: #e6e6e6;
+    --border-light: #f0f0f0;
+    --shadow: 0 1px 4px rgba(0,0,0,.06);
+    --primary: var(--wechat-green);
+    --primary-hover: var(--wechat-green-hover);
+    --flash-bg: #d4edda;
+    --flash-text: #155724;
+    --code-bg: #f7f7f7;
+    --tab-height: 54px;
+}
+body.dark {
+    --bg: #111;
+    --bg-card: #1e1e1e;
+    --bg-nav: #1a1a1a;
+    --text: #e5e5e5;
+    --text-secondary: #aaa;
+    --text-muted: #666;
+    --text-nav-inactive: #555;
+    --border: #2a2a2a;
+    --border-light: #222;
+    --shadow: 0 1px 4px rgba(0,0,0,.2);
+    --flash-bg: #2d4a2d;
+    --flash-text: #8bc34a;
+    --code-bg: #1e1e1e;
+    --wechat-green: #07C160;
+    --wechat-green-light: rgba(7, 193, 96, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+    transition: background .3s, color .3s; padding-bottom: var(--tab-height);
+}
+
+/* ===== Top Nav ===== */
+.top-bar {
+    background: var(--bg-nav); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100; transition: background .3s;
+}
+.top-bar-inner {
+    max-width: 800px; margin: 0 auto; padding: 0 16px;
+    height: 48px; display: flex; align-items: center; justify-content: space-between;
+}
+.top-bar-title { font-size: 1.05em; font-weight: 600; color: var(--text); }
+.top-bar-actions { display: flex; align-items: center; gap: 12px; }
+
+.theme-btn {
+    background: none; border: none; color: var(--text-secondary);
+    font-size: 1.15em; cursor: pointer; padding: 4px; line-height: 1;
+}
+
+/* ===== Bottom Tab Bar ===== */
+.tab-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: var(--bg-nav); border-top: 1px solid var(--border);
+    transition: background .3s; height: var(--tab-height);
+}
+.tab-bar-inner {
+    max-width: 800px; margin: 0 auto; height: 100%;
+    display: flex; align-items: stretch; justify-content: space-around;
+}
+.tab-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1px; text-decoration: none; color: var(--text-nav-inactive);
+    font-size: 10px; transition: color .2s; padding: 4px 0;
+}
+.tab-item i { font-size: 1.3em; }
+.tab-item.active, .tab-item:hover { color: var(--wechat-green); }
+
+/* ===== Main ===== */
+main {
+    max-width: 800px; margin: 0 auto; padding: 12px 16px;
+    min-height: calc(100vh - 48px - var(--tab-height));
+}
+
+/* ===== Typography ===== */
+h1 { font-size: 1.35em; font-weight: 600; margin-bottom: 16px; }
+h2 { font-size: 1.1em; font-weight: 600; margin-bottom: 12px; }
+h3 { font-size: 1em; font-weight: 600; }
+
+/* ===== Article Card (feed style) ===== */
+.feed-card {
+    background: var(--bg-card); border-radius: 10px; margin-bottom: 12px;
+    box-shadow: var(--shadow); overflow: hidden; transition: background .3s;
+}
+.feed-card-header {
+    padding: 16px 16px 0; display: flex; align-items: center; gap: 10px;
+}
+.feed-avatar {
+    width: 36px; height: 36px; border-radius: 4px; background: var(--wechat-green);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: .85em; font-weight: 600; flex-shrink: 0;
+}
+.feed-author { font-size: .85em; font-weight: 500; color: var(--text); }
+.feed-time { font-size: .75em; color: var(--text-muted); }
+.feed-body { padding: 12px 16px 16px; }
+.feed-title {
+    font-size: 1em; font-weight: 500; margin-bottom: 6px; line-height: 1.4;
+}
+.feed-title a { color: var(--text); text-decoration: none; }
+.feed-title a:hover { color: var(--wechat-green); }
+.feed-excerpt { font-size: .85em; color: var(--text-secondary); line-height: 1.6; }
+.feed-cover {
+    width: 100%; height: 160px; background: var(--code-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: var(--wechat-green); cursor: pointer;
+}
+
+/* ===== Full Post ===== */
+.full-post-card {
+    background: var(--bg-card); border-radius: 10px; padding: 24px 20px;
+    box-shadow: var(--shadow); transition: background .3s;
+}
+.full-post-card h1 { font-size: 1.4em; margin-bottom: 6px; }
+.full-post-card .content { margin-top: 20px; }
+.full-post-card .content p { margin-bottom: 1em; font-size: .95em; color: var(--text-secondary); }
+.full-post-card .content pre {
+    background: var(--code-bg); padding: 14px; border-radius: 8px;
+    overflow-x: auto; margin-bottom: 1em; font-size: .85em;
+}
+.full-post-card .content code { font-size: .9em; }
+.full-post-card .content img { max-width: 100%; border-radius: 8px; }
+.full-post-card .content blockquote {
+    border-left: 3px solid var(--wechat-green); padding-left: 14px;
+    color: var(--text-muted); margin-bottom: 1em; font-size: .9em;
+}
+
+.back-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: var(--wechat-green); text-decoration: none; font-size: .9em;
+    margin-top: 16px;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* ===== Empty ===== */
+.empty { text-align: center; color: var(--text-muted); padding: 60px 20px; font-size: .9em; }
+
+/* ===== About Page ===== */
+.profile-card {
+    background: var(--bg-card); border-radius: 10px; padding: 32px 20px;
+    text-align: center; box-shadow: var(--shadow); margin-bottom: 12px; transition: background .3s;
+}
+.profile-avatar {
+    width: 72px; height: 72px; border-radius: 8px; background: var(--wechat-green);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 1.8em; font-weight: 600; margin: 0 auto 12px;
+}
+.profile-name { font-size: 1.15em; font-weight: 600; margin-bottom: 2px; }
+.profile-desc { font-size: .85em; color: var(--text-secondary); margin-bottom: 16px; }
+.profile-bio { font-size: .85em; color: var(--text-secondary); line-height: 1.7; max-width: 500px; margin: 0 auto; }
+
+.info-row {
+    display: flex; align-items: center; gap: 12px; padding: 14px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { font-size: .85em; color: var(--text); min-width: 70px; font-weight: 500; }
+.info-value { font-size: .85em; color: var(--text-secondary); flex: 1; }
+.info-value a { color: var(--wechat-green); text-decoration: none; }
+
+/* ===== Projects ===== */
+.project-card {
+    background: var(--bg-card); border-radius: 10px; overflow: hidden;
+    box-shadow: var(--shadow); transition: background .3s, box-shadow .2s; margin-bottom: 12px;
+}
+.project-cover {
+    height: 140px; background: var(--code-bg); display: flex; align-items: center;
+    justify-content: center; font-size: 2rem; color: var(--wechat-green);
+    border-bottom: 1px solid var(--border-light);
+}
+.project-body { padding: 16px; }
+.project-title { font-size: .95em; font-weight: 500; margin-bottom: 6px; }
+.project-desc { font-size: .82em; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px; }
+.project-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.project-tag {
+    background: var(--wechat-green-light); color: var(--wechat-green);
+    padding: 2px 10px; font-size: .75em; border-radius: 3px;
+}
+.project-links { display: flex; gap: 14px; font-size: .82em; }
+.project-links a { color: var(--wechat-green); text-decoration: none; }
+.project-links a:hover { text-decoration: underline; }
+
+.filter-bar {
+    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;
+}
+.filter-btn {
+    padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-secondary); font-size: .82em;
+    cursor: pointer; white-space: nowrap; transition: all .2s;
+}
+.filter-btn.active { background: var(--wechat-green); color: #fff; border-color: var(--wechat-green); }
+.filter-btn:hover:not(.active) { border-color: var(--wechat-green); color: var(--wechat-green); }
+
+/* ===== Message / Chat Style ===== */
+.chat-card {
+    background: var(--bg-card); border-radius: 10px; padding: 20px;
+    box-shadow: var(--shadow); margin-bottom: 12px; transition: background .3s;
+}
+.chat-msg {
+    display: flex; gap: 10px; margin-bottom: 16px; align-items: flex-start;
+}
+.chat-avatar {
+    width: 36px; height: 36px; border-radius: 4px; background: var(--wechat-green);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: .8em; font-weight: 600; flex-shrink: 0;
+}
+.chat-bubble {
+    background: var(--bg); padding: 10px 14px; border-radius: 4px 10px 10px 10px;
+    font-size: .85em; color: var(--text); line-height: 1.6; max-width: 80%;
+}
+.chat-name { font-size: .78em; color: var(--text-muted); margin-bottom: 4px; }
+.chat-time { font-size: .72em; color: var(--text-muted); margin-top: 4px; }
+
+.msg-form {
+    background: var(--bg-card); border-radius: 10px; padding: 20px;
+    box-shadow: var(--shadow); margin-bottom: 20px; transition: background .3s;
+}
+.msg-form input, .msg-form textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: .9em; margin-bottom: 12px; font-family: inherit;
+    background: var(--bg); color: var(--text); transition: border .3s;
+}
+.msg-form input:focus, .msg-form textarea:focus { border-color: var(--wechat-green); }
+.msg-form textarea { resize: vertical; min-height: 80px; }
+
+/* ===== Stats Grid ===== */
+.stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px; margin-bottom: 20px;
+}
+.stat-item {
+    background: var(--bg-card); border-radius: 10px; text-align: center;
+    padding: 20px 12px; box-shadow: var(--shadow); transition: background .3s;
+}
+.stat-num { font-size: 1.5em; font-weight: 700; color: var(--wechat-green); }
+.stat-label { font-size: .75em; color: var(--text-muted); margin-top: 4px; }
+
+/* ===== Buttons ===== */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 8px 20px; border-radius: 6px; font-size: .9em; font-weight: 500;
+    cursor: pointer; border: none; text-decoration: none; transition: all .2s;
+}
+.btn-primary { background: var(--wechat-green); color: #fff; }
+.btn-primary:hover { background: var(--wechat-green-hover); }
+.btn-secondary { background: transparent; color: var(--wechat-green); border: 1px solid var(--wechat-green); }
+.btn-secondary:hover { background: var(--wechat-green-light); }
+.btn-danger { background: #fa5151; color: #fff; }
+.btn-danger:hover { background: #e04444; }
+
+/* ===== Form ===== */
+.form-card {
+    background: var(--bg-card); border-radius: 10px; padding: 24px 20px;
+    box-shadow: var(--shadow); transition: background .3s;
+}
+.form-card label { font-size: .85em; font-weight: 500; display: block; margin-bottom: 6px; }
+.form-card input, .form-card textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: .9em; margin-bottom: 16px; font-family: inherit;
+    background: var(--bg); color: var(--text); transition: border .3s;
+}
+.form-card input:focus, .form-card textarea:focus { border-color: var(--wechat-green); }
+.form-card textarea { resize: vertical; }
+
+/* ===== Table ===== */
+.table-wrap {
+    background: var(--bg-card); border-radius: 10px; overflow: hidden;
+    box-shadow: var(--shadow); transition: background .3s;
+}
+.table-wrap table { width: 100%; border-collapse: collapse; }
+.table-wrap th, .table-wrap td {
+    padding: 12px 14px; text-align: left; font-size: .85em;
+    border-bottom: 1px solid var(--border-light);
+}
+.table-wrap th { background: var(--bg); font-weight: 600; }
+.table-wrap tr:last-child td { border-bottom: none; }
+.actions { display: flex; gap: 8px; }
+
+/* ===== Flash ===== */
+.flash {
+    list-style: none; background: var(--flash-bg); color: var(--flash-text);
+    padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: .85em;
+}
+
+/* ===== Admin ===== */
+.admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.admin-header h1 { margin-bottom: 0; }
+.admin-actions { display: flex; gap: 10px; }
+
+/* ===== Tag / Skill ===== */
+.tag {
+    display: inline-block; background: var(--wechat-green-light); color: var(--wechat-green);
+    padding: 3px 12px; font-size: .8em; border-radius: 3px; margin: 2px;
+}
+
+/* ===== Section Title (WeChat style) ===== */
+.section-title {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: .9em;
+    color: var(--text-secondary);
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
