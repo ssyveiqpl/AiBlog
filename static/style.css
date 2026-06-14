@@ -217,7 +217,7 @@ h3 { font-size: 1em; font-weight: 600; }
 }
 .project-cover {
     height: 140px; background: var(--code-bg); display: flex; align-items: center;
-    justify-content: center; font-size: 2rem; color: var(--wechat-green);
+    justify-content: center; font-size: 3rem; color: var(--wechat-green);
     border-bottom: 1px solid var(--border-light);
 }
 .project-body { padding: 16px; }

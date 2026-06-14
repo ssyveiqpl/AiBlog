@@ -674,22 +674,22 @@ def init_db():
     # Default projects
     if not db.execute("SELECT 1 FROM projects").fetchone():
         default_projects = [
-            ("ai", "fa-skull", "LIN AI HACKER TERMINAL", "基于PHP+Ollama的本地AI编程助手，支持多模型切换与代码执行。", "PHP, Ollama, 本地AI", "", "http://ai.linlianghui.cn/chat/", 1),
-            ("tool", "fa-headphones", "PulseMusic · 在线音乐播放器", "支持QQ音乐高品质音源、悬浮歌词、智能连播。", "Vue3, 悬浮歌词, 移动优先", "", "http://ai.linlianghui.cn/PulseMusic/", 2),
-            ("tool", "fa-gas-pump", "FuelPulse · 油价实时查询", "全国汽油/柴油价格实时查询，支持省份快速切换。", "原生JS, Fetch API, 全国油价", "", "http://ai.linlianghui.cn/FuelPulse/", 3),
-            ("tool", "fa-train", "RailPulse · 智能候车室", "列车动态查询，支持暗夜/日间双模主题。", "Fetch API, 双主题, 移动优先", "", "http://ai.linlianghui.cn/RailPulse/", 4),
-            ("tool", "fa-chart-line", "GoldPulse · 黄金价格看板", "聚合内地与香港主流品牌黄金报价。", "Vue3, Fetch API, 纯前端", "", "http://ai.linlianghui.cn/GoldPulse/", 5),
-            ("tool", "fab fa-tiktok", "抖音热播数据爬虫系统", "自动抓取抖音热播视频数据，支持排序导出。", "PHP, cURL, AJAX", "", "http://ai.linlianghui.cn/douyin/", 6),
-            ("tool", "fa-link", "MiniLink · 小程序链接管理", "多账号管理，一键生成URL Scheme。", "PHP, MySQL, 微信API", "", "http://ai.linlianghui.cn/MiniLink/madmin.html", 7),
-            ("tool", "fa-pen-nib", "HanziTracer · 练字帖生成器", "汉字笔顺动画、田字格/米字格排版。", "PHP, SVG, Canvas", "", "http://ai.linlianghui.cn/hanzi-trace/", 8),
-            ("tool", "fa-user-secret", "AI Hacker Chat", "纯前端AI对话终端，SSE流式响应。", "OpenRouter, SSE, 安全研究", "", "http://ai.linlianghui.cn/chat/", 9),
-            ("tool", "fa-play-circle", "VIP影视解析工具", "多接口轮询VIP视频解析。", "HTML5, Vanilla JS, iframe", "", "http://ai.linlianghui.cn/jx/svip.php", 10),
-            ("ai", "fa-robot", "不锈钢板智能报价系统", "Vue3+PHP智能报价系统，支持多端使用。", "Vue3, PHP, localStorage", "", "http://www.linlianghui.cn/", 11),
-            ("web", "fa-laptop-code", "AI博客平台", "React+TS博客系统，支持Markdown。", "React, TypeScript, Tailwind", "", "http://www.linlianghui.cn/", 12),
-            ("tool", "fa-tools", "TXT/Excel 转 VCF 工具", "联系人文件转标准VCF格式。", "Papa Parse, SheetJS, vCard", "", "http://www.linlianghui.cn/vcf/", 13),
-            ("ai", "fa-brain", "医学影像分析系统", "深度学习检测X光片异常，准确率92%。", "TensorFlow, OpenCV, 迁移学习", "", "", 14),
-            ("research", "fa-network-wired", "社交网络影响力预测", "图神经网络预测用户影响力。", "PyTorch Geometric, GNN, 社交网络", "", "", 15),
-            ("web", "fa-mobile-alt", "AI学习助手App", "跨平台移动应用，AI入门学习。", "React Native, Expo, Firebase", "", "", 16),
+            ("ai", "fas fa-skull", "LIN AI HACKER TERMINAL", "基于PHP+Ollama的本地AI编程助手，支持多模型切换与代码执行。", "PHP, Ollama, 本地AI", "", "http://ai.linlianghui.cn/chat/", 1),
+            ("tool", "fas fa-headphones", "PulseMusic · 在线音乐播放器", "支持QQ音乐高品质音源、悬浮歌词、智能连播。", "Vue3, 悬浮歌词, 移动优先", "", "http://ai.linlianghui.cn/PulseMusic/", 2),
+            ("tool", "fas fa-gas-pump", "FuelPulse · 油价实时查询", "全国汽油/柴油价格实时查询，支持省份快速切换。", "原生JS, Fetch API, 全国油价", "", "http://ai.linlianghui.cn/FuelPulse/", 3),
+            ("tool", "fas fa-train", "RailPulse · 智能候车室", "列车动态查询，支持暗夜/日间双模主题。", "Fetch API, 双主题, 移动优先", "", "http://ai.linlianghui.cn/RailPulse/", 4),
+            ("tool", "fas fa-chart-bar", "GoldPulse · 黄金价格看板", "聚合内地与香港主流品牌黄金报价。", "Vue3, Fetch API, 纯前端", "", "http://ai.linlianghui.cn/GoldPulse/", 5),
+            ("tool", "fas fa-video", "抖音热播数据爬虫系统", "自动抓取抖音热播视频数据，支持排序导出。", "PHP, cURL, AJAX", "", "http://ai.linlianghui.cn/douyin/", 6),
+            ("tool", "fas fa-link", "MiniLink · 小程序链接管理", "多账号管理，一键生成URL Scheme。", "PHP, MySQL, 微信API", "", "http://ai.linlianghui.cn/MiniLink/madmin.html", 7),
+            ("tool", "fas fa-pen-nib", "HanziTracer · 练字帖生成器", "汉字笔顺动画、田字格/米字格排版。", "PHP, SVG, Canvas", "", "http://ai.linlianghui.cn/hanzi-trace/", 8),
+            ("tool", "fas fa-user-secret", "AI Hacker Chat", "纯前端AI对话终端，SSE流式响应。", "OpenRouter, SSE, 安全研究", "", "http://ai.linlianghui.cn/chat/", 9),
+            ("tool", "fas fa-play-circle", "VIP影视解析工具", "多接口轮询VIP视频解析。", "HTML5, Vanilla JS, iframe", "", "http://ai.linlianghui.cn/jx/svip.php", 10),
+            ("ai", "fas fa-robot", "不锈钢板智能报价系统", "Vue3+PHP智能报价系统，支持多端使用。", "Vue3, PHP, localStorage", "", "http://www.linlianghui.cn/", 11),
+            ("web", "fas fa-laptop-code", "AI博客平台", "React+TS博客系统，支持Markdown。", "React, TypeScript, Tailwind", "", "http://www.linlianghui.cn/", 12),
+            ("tool", "fas fa-toolbox", "TXT/Excel 转 VCF 工具", "联系人文件转标准VCF格式。", "Papa Parse, SheetJS, vCard", "", "http://www.linlianghui.cn/vcf/", 13),
+            ("ai", "fas fa-brain", "医学影像分析系统", "深度学习检测X光片异常，准确率92%。", "TensorFlow, OpenCV, 迁移学习", "", "", 14),
+            ("research", "fas fa-network-wired", "社交网络影响力预测", "图神经网络预测用户影响力。", "PyTorch Geometric, GNN, 社交网络", "", "", 15),
+            ("web", "fas fa-mobile", "AI学习助手App", "跨平台移动应用，AI入门学习。", "React Native, Expo, Firebase", "", "", 16),
         ]
         now = datetime.now().strftime("%Y-%m-%d %H:%M")
         for p in default_projects:
