@@ -8,50 +8,34 @@
 
 <div class="filter-bar" id="filterBar">
     <button class="filter-btn active" data-filter="all">{{ _t('all') }}</button>
-    <button class="filter-btn" data-filter="ai">AI/ML</button>
-    <button class="filter-btn" data-filter="web">Web</button>
-    <button class="filter-btn" data-filter="tool">{{ _t('filter_tools') }}</button>
-    <button class="filter-btn" data-filter="research">{{ _t('filter_research') }}</button>
+    <button class="filter-btn" data-filter="ai">{{ _t('cat_ai') }}</button>
+    <button class="filter-btn" data-filter="web">{{ _t('cat_web') }}</button>
+    <button class="filter-btn" data-filter="tool">{{ _t('cat_tool') }}</button>
+    <button class="filter-btn" data-filter="research">{{ _t('cat_research') }}</button>
 </div>
 
-{% set items = [
-    {"cat":"ai","icon":"fa-skull","title":"LIN AI HACKER TERMINAL","desc":"基于PHP+Ollama的本地AI编程助手，支持多模型切换与代码执行。","tags":["PHP","Ollama","本地AI"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/chat/"},
-    {"cat":"tool","icon":"fa-headphones","title":"PulseMusic · 在线音乐播放器","desc":"支持QQ音乐高品质音源、悬浮歌词、智能连播。","tags":["Vue3","悬浮歌词","移动优先"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/PulseMusic/"},
-    {"cat":"tool","icon":"fa-gas-pump","title":"FuelPulse · 油价实时查询","desc":"全国汽油/柴油价格实时查询，支持省份快速切换。","tags":["原生JS","Fetch API","全国油价"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/FuelPulse/"},
-    {"cat":"tool","icon":"fa-train","title":"RailPulse · 智能候车室","desc":"列车动态查询，支持暗夜/日间双模主题。","tags":["Fetch API","双主题","移动优先"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/RailPulse/"},
-    {"cat":"tool","icon":"fa-chart-line","title":"GoldPulse · 黄金价格看板","desc":"聚合内地与香港主流品牌黄金报价。","tags":["Vue3","Fetch API","纯前端"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/GoldPulse/"},
-    {"cat":"tool","icon":"fab fa-tiktok","title":"抖音热播数据爬虫系统","desc":"自动抓取抖音热播视频数据，支持排序导出。","tags":["PHP","cURL","AJAX"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/douyin/"},
-    {"cat":"tool","icon":"fa-link","title":"MiniLink · 小程序链接管理","desc":"多账号管理，一键生成URL Scheme。","tags":["PHP","MySQL","微信API"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/MiniLink/madmin.html"},
-    {"cat":"tool","icon":"fa-pen-nib","title":"HanziTracer · 练字帖生成器","desc":"汉字笔顺动画、田字格/米字格排版。","tags":["PHP","SVG","Canvas"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/hanzi-trace/"},
-    {"cat":"tool","icon":"fa-user-secret","title":"AI Hacker Chat","desc":"纯前端AI对话终端，SSE流式响应。","tags":["OpenRouter","SSE","安全研究"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/chat/"},
-    {"cat":"tool","icon":"fa-play-circle","title":"VIP影视解析工具","desc":"多接口轮询VIP视频解析。","tags":["HTML5","Vanilla JS","iframe"],"github":"javascript:void(0)","demo":"http://ai.linlianghui.cn/jx/svip.php"},
-    {"cat":"ai","icon":"fa-robot","title":"不锈钢板智能报价系统","desc":"Vue3+PHP智能报价系统，支持多端使用。","tags":["Vue3","PHP","localStorage"],"github":"javascript:void(0)","demo":"http://www.linlianghui.cn/"},
-    {"cat":"web","icon":"fa-laptop-code","title":"AI博客平台","desc":"React+TS博客系统，支持Markdown。","tags":["React","TypeScript","Tailwind"],"github":"javascript:void(0)","demo":"http://www.linlianghui.cn/"},
-    {"cat":"tool","icon":"fa-tools","title":"TXT/Excel 转 VCF 工具","desc":"联系人文件转标准VCF格式。","tags":["Papa Parse","SheetJS","vCard"],"github":"javascript:void(0)","demo":"http://www.linlianghui.cn/vcf/"},
-    {"cat":"ai","icon":"fa-brain","title":"医学影像分析系统","desc":"深度学习检测X光片异常，准确率92%。","tags":["TensorFlow","OpenCV","迁移学习"],"github":"javascript:void(0)","demo":"javascript:void(0)"},
-    {"cat":"research","icon":"fa-network-wired","title":"社交网络影响力预测","desc":"图神经网络预测用户影响力。","tags":["PyTorch Geometric","GNN","社交网络"],"github":"javascript:void(0)","demo":"javascript:void(0)"},
-    {"cat":"web","icon":"fa-mobile-alt","title":"AI学习助手App","desc":"跨平台移动应用，AI入门学习。","tags":["React Native","Expo","Firebase"],"github":"javascript:void(0)","demo":"javascript:void(0)"}
-] %}
-
-{% for item in items %}
+{% for item in projects %}
 <div class="project-card" data-category="{{ item.cat }}">
     <div class="project-cover"><i class="{{ item.icon }}"></i></div>
     <div class="project-body">
         <div class="project-title">{{ item.title }}</div>
-        <div class="project-desc">{{ item.desc }}</div>
+        <div class="project-desc">{{ item.description }}</div>
+        {% if item.tags %}
         <div class="project-tags">
-            {% for tag in item.tags %}
-            <span class="project-tag">{{ tag }}</span>
+            {% for tag in item.tags.split(',') %}
+            {% set t = tag.strip() %}
+            {% if t %}<span class="project-tag">{{ t }}</span>{% endif %}
             {% endfor %}
         </div>
+        {% endif %}
         <div class="project-links">
-            <a href="{{ item.github }}">GitHub</a>
-            {% if item.demo != "javascript:void(0)" %}
-            <a href="{{ item.demo }}" target="_blank">{{ _t('demo') }}</a>
-            {% endif %}
+            {% if item.github_url %}<a href="{{ item.github_url }}">GitHub</a>{% endif %}
+            {% if item.demo_url %}<a href="{{ item.demo_url }}" target="_blank">{{ _t('demo') }}</a>{% endif %}
         </div>
     </div>
 </div>
+{% else %}
+<p class="empty" style="padding:60px 0;text-align:center;">{{ _t('no_projects') }}</p>
 {% endfor %}
 
 <script>

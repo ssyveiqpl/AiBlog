@@ -239,6 +239,22 @@ TRANSLATIONS = {
         "location": "位置",
         "top_papers": "顶级论文",
         "blog_readers": "博客读者",
+        "proj_mgmt": "项目管理",
+        "proj_title": "项目标题",
+        "proj_cat": "分类",
+        "proj_icon": "图标 (FontAwesome class)",
+        "proj_desc": "项目描述",
+        "proj_tags": "标签 (逗号分隔)",
+        "proj_github": "GitHub 链接",
+        "proj_demo": "演示链接",
+        "proj_sort": "排序",
+        "proj_add": "添加项目",
+        "proj_edit": "编辑项目",
+        "no_projects": "暂无项目",
+        "cat_ai": "AI/ML",
+        "cat_web": "Web",
+        "cat_tool": "工具",
+        "cat_research": "研究",
     },
     "en": {
         "site_name": "AI Explorer Notes",
@@ -460,6 +476,22 @@ TRANSLATIONS = {
         "location": "Location",
         "top_papers": "Top Papers",
         "blog_readers": "Blog Readers",
+        "proj_mgmt": "Projects",
+        "proj_title": "Title",
+        "proj_cat": "Category",
+        "proj_icon": "Icon (FontAwesome class)",
+        "proj_desc": "Description",
+        "proj_tags": "Tags (comma separated)",
+        "proj_github": "GitHub URL",
+        "proj_demo": "Demo URL",
+        "proj_sort": "Sort Order",
+        "proj_add": "Add Project",
+        "proj_edit": "Edit Project",
+        "no_projects": "No projects yet",
+        "cat_ai": "AI/ML",
+        "cat_web": "Web",
+        "cat_tool": "Tools",
+        "cat_research": "Research",
     },
 }
 
@@ -567,6 +599,18 @@ def init_db():
         content TEXT NOT NULL,
         created_at TEXT NOT NULL
     )""")
+    db.execute("""CREATE TABLE IF NOT EXISTS projects (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cat TEXT NOT NULL DEFAULT 'tool',
+        icon TEXT NOT NULL DEFAULT 'fa-code',
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        tags TEXT NOT NULL DEFAULT '',
+        github_url TEXT NOT NULL DEFAULT '',
+        demo_url TEXT NOT NULL DEFAULT '',
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+    )""")
     # Migrations for new columns
     for col in ("category", "cover_image", "status", "series_id"):
         try:
@@ -627,6 +671,30 @@ def init_db():
         db.execute("INSERT INTO announcements (title, content, created_at) VALUES (?, ?, ?)",
                    ("欢迎来到 AI探索笔记", "这里是记录人工智能、机器学习与前沿技术的博客站点。欢迎阅读和交流！",
                     datetime.now().strftime("%Y-%m-%d %H:%M")))
+    # Default projects
+    if not db.execute("SELECT 1 FROM projects").fetchone():
+        default_projects = [
+            ("ai", "fa-skull", "LIN AI HACKER TERMINAL", "基于PHP+Ollama的本地AI编程助手，支持多模型切换与代码执行。", "PHP, Ollama, 本地AI", "", "http://ai.linlianghui.cn/chat/", 1),
+            ("tool", "fa-headphones", "PulseMusic · 在线音乐播放器", "支持QQ音乐高品质音源、悬浮歌词、智能连播。", "Vue3, 悬浮歌词, 移动优先", "", "http://ai.linlianghui.cn/PulseMusic/", 2),
+            ("tool", "fa-gas-pump", "FuelPulse · 油价实时查询", "全国汽油/柴油价格实时查询，支持省份快速切换。", "原生JS, Fetch API, 全国油价", "", "http://ai.linlianghui.cn/FuelPulse/", 3),
+            ("tool", "fa-train", "RailPulse · 智能候车室", "列车动态查询，支持暗夜/日间双模主题。", "Fetch API, 双主题, 移动优先", "", "http://ai.linlianghui.cn/RailPulse/", 4),
+            ("tool", "fa-chart-line", "GoldPulse · 黄金价格看板", "聚合内地与香港主流品牌黄金报价。", "Vue3, Fetch API, 纯前端", "", "http://ai.linlianghui.cn/GoldPulse/", 5),
+            ("tool", "fab fa-tiktok", "抖音热播数据爬虫系统", "自动抓取抖音热播视频数据，支持排序导出。", "PHP, cURL, AJAX", "", "http://ai.linlianghui.cn/douyin/", 6),
+            ("tool", "fa-link", "MiniLink · 小程序链接管理", "多账号管理，一键生成URL Scheme。", "PHP, MySQL, 微信API", "", "http://ai.linlianghui.cn/MiniLink/madmin.html", 7),
+            ("tool", "fa-pen-nib", "HanziTracer · 练字帖生成器", "汉字笔顺动画、田字格/米字格排版。", "PHP, SVG, Canvas", "", "http://ai.linlianghui.cn/hanzi-trace/", 8),
+            ("tool", "fa-user-secret", "AI Hacker Chat", "纯前端AI对话终端，SSE流式响应。", "OpenRouter, SSE, 安全研究", "", "http://ai.linlianghui.cn/chat/", 9),
+            ("tool", "fa-play-circle", "VIP影视解析工具", "多接口轮询VIP视频解析。", "HTML5, Vanilla JS, iframe", "", "http://ai.linlianghui.cn/jx/svip.php", 10),
+            ("ai", "fa-robot", "不锈钢板智能报价系统", "Vue3+PHP智能报价系统，支持多端使用。", "Vue3, PHP, localStorage", "", "http://www.linlianghui.cn/", 11),
+            ("web", "fa-laptop-code", "AI博客平台", "React+TS博客系统，支持Markdown。", "React, TypeScript, Tailwind", "", "http://www.linlianghui.cn/", 12),
+            ("tool", "fa-tools", "TXT/Excel 转 VCF 工具", "联系人文件转标准VCF格式。", "Papa Parse, SheetJS, vCard", "", "http://www.linlianghui.cn/vcf/", 13),
+            ("ai", "fa-brain", "医学影像分析系统", "深度学习检测X光片异常，准确率92%。", "TensorFlow, OpenCV, 迁移学习", "", "", 14),
+            ("research", "fa-network-wired", "社交网络影响力预测", "图神经网络预测用户影响力。", "PyTorch Geometric, GNN, 社交网络", "", "", 15),
+            ("web", "fa-mobile-alt", "AI学习助手App", "跨平台移动应用，AI入门学习。", "React Native, Expo, Firebase", "", "", 16),
+        ]
+        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+        for p in default_projects:
+            db.execute("INSERT INTO projects (cat, icon, title, description, tags, github_url, demo_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                       (p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], now))
     db.commit()
     db.close()
 
@@ -1152,7 +1220,9 @@ def message():
 # ─── Projects ───
 @app.route("/projects")
 def projects():
-    return render_template("projects.html")
+    db = get_db()
+    projects = db.execute("SELECT * FROM projects ORDER BY sort_order ASC, created_at DESC").fetchall()
+    return render_template("projects.html", projects=projects)
 
 
 # ─── About ───
@@ -1525,6 +1595,54 @@ def delete_announcement(ann_id):
     db.commit()
     flash("公告已删除")
     return redirect(url_for("admin_announcements"))
+
+
+# ─── Admin: Projects ───
+@app.route("/admin/projects", methods=["GET", "POST"])
+@login_required
+@csrf_required
+def admin_projects():
+    db = get_db()
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        cat = request.form.get("cat", "tool").strip()
+        icon = request.form.get("icon", "fa-code").strip()
+        description = request.form.get("description", "").strip()
+        tags = request.form.get("tags", "").strip()
+        github_url = request.form.get("github_url", "").strip()
+        demo_url = request.form.get("demo_url", "").strip()
+        sort_order = request.form.get("sort_order", type=int) or 0
+        proj_id = request.form.get("id", type=int)
+        if not title:
+            flash("项目标题不能为空")
+        elif proj_id:
+            db.execute("UPDATE projects SET title=?, cat=?, icon=?, description=?, tags=?, github_url=?, demo_url=?, sort_order=? WHERE id=?",
+                       (title, cat, icon, description, tags, github_url, demo_url, sort_order, proj_id))
+            db.commit()
+            flash("项目已更新")
+        else:
+            db.execute("INSERT INTO projects (cat, icon, title, description, tags, github_url, demo_url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                       (cat, icon, title, description, tags, github_url, demo_url, sort_order, datetime.now().strftime("%Y-%m-%d %H:%M")))
+            db.commit()
+            flash("项目已添加")
+        return redirect(url_for("admin_projects"))
+    edit_id = request.args.get("edit", type=int)
+    edit_proj = None
+    if edit_id:
+        edit_proj = db.execute("SELECT * FROM projects WHERE id=?", (edit_id,)).fetchone()
+    proj_list = db.execute("SELECT * FROM projects ORDER BY sort_order ASC, created_at DESC").fetchall()
+    return render_template("admin_projects.html", projects=proj_list, edit_proj=edit_proj)
+
+
+@app.route("/admin/projects/delete/<int:proj_id>", methods=["POST"])
+@login_required
+@csrf_required
+def delete_project(proj_id):
+    db = get_db()
+    db.execute("DELETE FROM projects WHERE id=?", (proj_id,))
+    db.commit()
+    flash("项目已删除")
+    return redirect(url_for("admin_projects"))
 
 
 # ─── Admin: Stats ───
