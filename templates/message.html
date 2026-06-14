@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}留言板{% endblock %}
+{% block title %}{{ _t('message') }}{% endblock %}
 {% block content %}
 <div class="profile-card" style="padding:20px;margin-bottom:16px;">
-    <h1 style="margin-bottom:4px;">留言板</h1>
-    <p style="color:var(--text-secondary);font-size:.85em;">欢迎留下你的想法和建议</p>
+    <h1 style="margin-bottom:4px;">{{ _t('message_title') }}</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;">{{ _t('message_desc') }}</p>
 </div>
 
 <div class="msg-form">
     <form method="post">
         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-        <input type="text" name="name" placeholder="你的名字" required>
-        <textarea name="content" placeholder="写下你想说的话..." required></textarea>
-        <button type="submit" class="btn btn-primary" style="width:100%;">提交留言</button>
+        <input type="text" name="name" placeholder="{{ _t('message_name') }}" required>
+        <textarea name="content" placeholder="{{ _t('message_content') }}" required></textarea>
+        <button type="submit" class="btn btn-primary" style="width:100%;">{{ _t('submit_message') }}</button>
     </form>
 </div>
 
-<div class="section-title">全部留言</div>
+<div class="section-title">{{ _t('message') }}</div>
 
 {% for m in messages %}
 <div class="chat-card">
@@ -28,19 +28,19 @@
     </div>
 </div>
 {% else %}
-<p class="empty">还没有留言，来写下第一条吧</p>
+<p class="empty">{{ _t('no_data') }}</p>
 {% endfor %}
 
 {% if total_pages > 1 %}
 <div class="pagination">
     {% if page > 1 %}
-    <a href="{{ url_for('message', page=page-1) }}" class="page-btn">&laquo; 上一页</a>
+    <a href="{{ url_for('message', page=page-1) }}" class="page-btn">{{ _t('prev_page') }}</a>
     {% endif %}
     {% for p in range(1, total_pages + 1) %}
     <a href="{{ url_for('message', page=p) }}" class="page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
     {% endfor %}
     {% if page < total_pages %}
-    <a href="{{ url_for('message', page=page+1) }}" class="page-btn">下一页 &raquo;</a>
+    <a href="{{ url_for('message', page=page+1) }}" class="page-btn">{{ _t('next_page') }}</a>
     {% endif %}
 </div>
 {% endif %}

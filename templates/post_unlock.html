@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}输入密码 - {{ post.title }}{% endblock %}
+{% block content %}
+<div class="full-post-card" style="text-align:center;padding:60px 20px;">
+    <i class="fas fa-lock" style="font-size:3rem;color:var(--primary);margin-bottom:16px;"></i>
+    <h2>{{ _t('password_required') }}</h2>
+    <p style="color:var(--text-secondary);font-size:.85em;margin-bottom:20px;">{{ post.title }}</p>
+    <form method="GET" action="{{ url_for('post', post_id=post.id) }}" style="max-width:320px;margin:0 auto;">
+        <input type="hidden" name="unlock" value="1">
+        <input type="password" name="pwd" placeholder="{{ _t('enter_password') }}" required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);text-align:center;">
+        <button type="submit" class="btn btn-primary" style="width:100%;">{{ _t('unlock') }}</button>
+    </form>
+</div>
+{% endblock %}

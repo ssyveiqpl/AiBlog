@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}{{ post.title }}{% endblock %}
+{% block title %}{{ post.seo_title or post.title }}{% endblock %}
 {% block meta %}
-<meta name="description" content="{{ post.content[:200]|e }}">
-<meta property="og:title" content="{{ post.title|e }}">
-<meta property="og:description" content="{{ post.content[:200]|e }}">
+{% set desc = (post.seo_desc or post.content[:200])|e %}
+{% set keywords = post.seo_keywords or ','.join(post.tags.split(',')[:5]) %}
+<meta name="description" content="{{ desc }}">
+<meta name="keywords" content="{{ keywords }}">
+<meta property="og:title" content="{{ (post.seo_title or post.title)|e }}">
+<meta property="og:description" content="{{ desc }}">
 {% if post.cover_image %}<meta property="og:image" content="{{ post.cover_image }}">{% endif %}
 <meta property="og:url" content="{{ request.url }}">
+<meta property="og:type" content="article">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="{{ request.url }}">
 {% endblock %}
 {% block content %}
 <div class="full-post-card">
-    {% if post.cover_image %}
-    <div style="width:100%;max-height:300px;border-radius:8px;overflow:hidden;margin-bottom:16px;background:var(--code-bg);display:flex;align-items:center;justify-content:center;">
-        <img src="{{ post.cover_image }}" alt="{{ post.title }}" style="max-width:100%;max-height:300px;object-fit:contain;">
-    </div>
-    {% endif %}
+    <div id="reading-progress" style="height:3px;background:var(--wechat-green);position:sticky;top:0;width:0;border-radius:2px;z-index:10;"></div>
     {% if post.category or post.tags %}
     <div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:4px;">
         {% if post.category %}<span class="tag" style="background:var(--primary);color:#fff;">{{ post.category }}</span>{% endif %}
@@ -28,26 +28,54 @@
     <h1>{{ post.title }}</h1>
     <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
         <time style="font-size:.82em;color:var(--text-muted);">{{ post.created_at }}</time>
-        <span style="font-size:.78em;color:var(--text-muted);"><i class="far fa-clock"></i> {{ reading_time }} 分钟阅读</span>
+        <span style="font-size:.78em;color:var(--text-muted);"><i class="far fa-clock"></i> {{ reading_time }} {% if session.lang == 'en' %}min read{% else %}{{ _t('min_read') }}{% endif %}</span>
+        <span style="font-size:.78em;color:var(--text-muted);"><i class="far fa-eye"></i> {{ post.views or 0 }} {% if session.lang == 'en' %}views{% else %}{{ _t('reading') }}{% endif %}</span>
     </div>
     {% if post.series_id and series %}
     <div style="margin-top:8px;">
-        <span style="font-size:.82em;color:var(--text-secondary);">系列：</span>
+        <span style="font-size:.82em;color:var(--text-secondary);">{{ _t('series') }}：</span>
         <a href="#series" style="color:var(--wechat-green);font-size:.82em;text-decoration:none;">{{ series.name }}</a>
     </div>
     {% endif %}
+    {% if post.cover_image %}
+    <img src="{{ post.cover_image }}" class="post-cover" alt="cover" onerror="this.style.display='none'">
+    {% endif %}
     <div class="content">{{ content_html|safe }}</div>
+    <!-- Like & Share -->
+    <div class="post-actions">
+        <button id="likeBtn" data-post-id="{{ post.id }}" class="btn {% if liked %}btn-primary{% else %}btn-secondary{% endif %} action-btn">
+            <i class="{% if liked %}fas{% else %}far{% endif %} fa-heart"></i> <span id="likeCount">{{ like_count }}</span> {{ _t('likes', n=like_count) }}
+        </button>
+        <div class="share-buttons">
+            <span style="font-size:.82em;color:var(--text-muted);">{{ _t('share') }}：</span>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url|urlencode }}" target="_blank" rel="noopener" class="btn btn-secondary action-btn" title="{{ _t('share_facebook') }}"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com/intent/tweet?text={{ (post.title[:80])|urlencode }}&url={{ request.url|urlencode }}" target="_blank" rel="noopener" class="btn btn-secondary action-btn" title="{{ _t('share_twitter') }}"><i class="fab fa-twitter"></i></a>
+            <a href="https://service.weibo.com/share/share.php?title={{ post.title[:80]|urlencode }}&url={{ request.url|urlencode }}" target="_blank" rel="noopener" class="btn btn-secondary action-btn" title="{{ _t('share_weibo') }}"><i class="fab fa-weibo"></i></a>
+            <a href="javascript:void(0)" onclick="var u=window.location.href;window.location.href='https://www.linkedin.com/shareArticle?mini=true&url='+encodeURIComponent(u)+'&title='+encodeURIComponent(document.title);" class="btn btn-secondary action-btn" title="{{ _t('share_linkedin') }}"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+    </div>
 </div>
+
+{% if toc %}
+<div class="full-post-card" style="margin-top:16px;">
+    <h2 style="font-size:1em;margin-bottom:12px;">{{ _t('table_of_contents') }}</h2>
+    {% for level, title, anchor in toc %}
+    <div style="padding-left:{{ (level-1)*16 }}px;margin-bottom:4px;">
+        <a href="#{{ anchor }}" style="color:var(--text-secondary);text-decoration:none;font-size:.{{ 11-level }}em;">{{ title }}</a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 {% if series and series_posts %}
 <div class="full-post-card" style="margin-top:16px;" id="series">
-    <h2 style="font-size:1em;margin-bottom:16px;">系列：{{ series.name }}</h2>
+    <h2 style="font-size:1em;margin-bottom:16px;">{{ _t('series') }}：{{ series.name }}</h2>
     {% if series.description %}<p style="font-size:.82em;color:var(--text-secondary);margin-bottom:12px;">{{ series.description }}</p>{% endif %}
     {% for sp in series_posts %}
     <div class="info-row">
         <span class="info-value">
             {% if sp.id == post.id %}
-            <strong style="color:var(--wechat-green);">{{ sp.title }} <small>(当前)</small></strong>
+            <strong style="color:var(--wechat-green);">{{ sp.title }} <small>({{ _t('current') }})</small></strong>
             {% else %}
             <a href="{{ url_for('post', post_id=sp.id) }}" style="color:var(--text);text-decoration:none;">{{ sp.title }}</a>
             {% endif %}
@@ -60,7 +88,7 @@
 
 {% if related %}
 <div class="full-post-card" style="margin-top:16px;">
-    <h2 style="font-size:1em;margin-bottom:16px;">相关推荐</h2>
+    <h2 style="font-size:1em;margin-bottom:16px;">{{ _t('related') }}</h2>
     {% for r in related %}
     <div class="info-row">
         <span class="info-value"><a href="{{ url_for('post', post_id=r.id) }}" style="color:var(--text);text-decoration:none;">{{ r.title }}</a></span>
@@ -72,14 +100,17 @@
 
 {% if comments %}
 <div class="full-post-card" style="margin-top:16px;">
-    <h2 style="font-size:1em;margin-bottom:16px;">评论 ({{ comments|length }})</h2>
+    <h2 style="font-size:1em;margin-bottom:16px;">{{ _t('comments', n=comments|length) }}</h2>
     {% for c in comments %}
-    <div class="chat-msg">
+    <div class="chat-msg" id="comment-{{ c.id }}">
         <div class="chat-avatar">{{ c.name[:1] }}</div>
         <div>
-            <div class="chat-name">{{ c.name }}</div>
+            <div class="chat-name">{{ c.name }}{% if c.parent_name %} <span style="font-size:.76em;color:var(--text-muted);">回复 {{ c.parent_name }}</span>{% endif %}</div>
             <div class="chat-bubble" style="max-width:90%;">{{ c.content }}</div>
-            <div class="chat-time">{{ c.created_at }}</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+                <div class="chat-time">{{ c.created_at }}</div>
+                <button class="reply-btn" data-comment-id="{{ c.id }}" data-name="{{ c.name }}" style="background:none;border:none;color:var(--wechat-green);font-size:.78em;cursor:pointer;padding:0;">{{ _t('reply') }}</button>
+            </div>
         </div>
     </div>
     {% endfor %}
@@ -87,17 +118,72 @@
 {% endif %}
 
 <div class="full-post-card" style="margin-top:16px;">
-    <h2 style="font-size:1em;margin-bottom:16px;">发表评论</h2>
+    <h2 style="font-size:1em;margin-bottom:16px;">{{ _t('leave_comment') }}</h2>
     <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-        <input type="text" name="name" placeholder="你的名字" required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);">
-        <textarea name="content" rows="4" placeholder="写下你的评论..." required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
-        <button type="submit" class="btn btn-primary">提交评论</button>
+        <input type="hidden" name="parent_id" id="parentId" value="">
+        <div id="replyInfo" style="display:none;padding:8px 12px;background:var(--code-bg);border-radius:6px;margin-bottom:12px;font-size:.85em;color:var(--text-secondary);">
+            {{ _t('reply') }} <span id="replyName"></span>
+            <a href="javascript:void(0)" onclick="cancelReply()" style="float:right;color:var(--wechat-green);text-decoration:none;">{{ _t('cancel') }}</a>
+        </div>
+        <input type="text" name="name" placeholder="{{ _t('your_name') }}" required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);">
+        <textarea name="content" rows="4" placeholder="{{ _t('write_comment') }}" required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+        <button type="submit" class="btn btn-primary">{{ _t('submit_comment') }}</button>
     </form>
 </div>
 
-<a href="{{ url_for('index') }}" class="back-link">&larr; 返回首页</a>
+<a href="{{ url_for('index') }}" class="back-link">{{ _t('back_home') }}</a>
 {% endblock %}
 {% block scripts %}
-<script>hljs.highlightAll();</script>
+<script>
+hljs.highlightAll();
+// Like button
+document.getElementById('likeBtn') && document.getElementById('likeBtn').addEventListener('click', function() {
+    var btn = this;
+    var postId = btn.getAttribute('data-post-id');
+    var formData = new FormData();
+    formData.append('csrf_token', '{{ session.csrf_token }}');
+    fetch('/post/' + postId + '/like', { method: 'POST', body: formData })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.querySelector('#likeCount').textContent = data.count;
+            btn.className = 'btn action-btn ' + (data.liked ? 'btn-primary' : 'btn-secondary');
+            btn.querySelector('i').className = (data.liked ? 'fas' : 'far') + ' fa-heart';
+        });
+});
+// Reply to comment
+function cancelReply() {
+    document.getElementById('parentId').value = '';
+    document.getElementById('replyInfo').style.display = 'none';
+}
+document.querySelectorAll('.reply-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('parentId').value = this.getAttribute('data-comment-id');
+        document.getElementById('replyName').textContent = this.getAttribute('data-name');
+        document.getElementById('replyInfo').style.display = 'block';
+        document.getElementById('replyInfo').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+});
+// TOC smooth scroll
+document.querySelectorAll('.full-post-card a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+// Reading progress bar
+document.addEventListener('DOMContentLoaded', function() {
+    var bar = document.getElementById('reading-progress');
+    if (!bar) return;
+    function update() {
+        var scrollTop = window.scrollY || document.documentElement.scrollTop;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }
+    window.addEventListener('scroll', update);
+    update();
+});
+</script>
 {% endblock %}

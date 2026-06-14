@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ _t('msg_mgmt') }}{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1>{{ _t('msg_mgmt') }}</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">{{ _t('back_to_admin') }}</a>
+</div>
+
+{% if messages %}
+<div class="table-wrap">
+    <table>
+        <tr>
+            <th>{{ _t('user_col') }}</th>
+            <th>{{ _t('content_col') }}</th>
+            <th>{{ _t('time') }}</th>
+            <th>{{ _t('operation') }}</th>
+        </tr>
+        {% for m in messages %}
+        <tr>
+            <td>{{ m.name }}</td>
+            <td style="max-width:300px;">{{ m.content }}</td>
+            <td style="font-size:.82em;color:var(--text-muted);">{{ m.created_at }}</td>
+            <td class="actions">
+                <form method="POST" action="{{ url_for('delete_message', msg_id=m.id) }}" onsubmit="return confirm('{{ _t('confirm_delete') }}')">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    <button type="submit" class="btn btn-danger action-btn">{{ _t('delete') }}</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% else %}
+<p class="empty">{{ _t('no_messages') }}</p>
+{% endif %}
+{% endblock %}

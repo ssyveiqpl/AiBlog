@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}分类{% endblock %}
+{% block title %}{{ _t('categories') }}{% endblock %}
 {% block content %}
 <div class="profile-card" style="padding:24px 20px;margin-bottom:16px;">
-    <h1>文章分类</h1>
-    <p style="color:var(--text-secondary);font-size:.85em;">按分类浏览所有文章</p>
+    <h1>{{ _t('categories_title') }}</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;">{{ _t('categories_desc') }}</p>
 </div>
 
 {% if categories %}
@@ -17,7 +17,7 @@
 <div class="full-post-card" style="margin-bottom:12px;">
     <h2 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
         <span style="background:var(--wechat-green);color:#fff;padding:2px 10px;border-radius:3px;font-size:.8em;">{{ cat.category }}</span>
-        <small style="color:var(--text-muted);font-weight:400;">{{ cat.cnt }} 篇</small>
+        <small style="color:var(--text-muted);font-weight:400;">{{ cat.cnt }} {% if session.lang == 'en' %}posts{% else %}篇{% endif %}</small>
     </h2>
     {% for p in posts_by_cat[cat.category] %}
     <div class="info-row">
@@ -28,6 +28,6 @@
 </div>
 {% endfor %}
 {% else %}
-<p class="empty">还没有分类</p>
+<p class="empty">{{ _t('no_data') }}</p>
 {% endif %}
 {% endblock %}

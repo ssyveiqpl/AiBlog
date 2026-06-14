@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}关于{% endblock %}
+{% block title %}{{ _t('about') }}{% endblock %}
 {% block content %}
 <div class="profile-card">
-    <div class="profile-avatar">林</div>
-    <div class="profile-name">林良辉</div>
-    <div class="profile-desc">AI研究员 &amp; 技术博主</div>
-    <div class="profile-bio">专注于大语言模型、计算机视觉和智能体系统的研究与应用。在过去五年，参与了多个行业级AI项目，并在顶级会议发表论文10余篇。</div>
+    <div class="profile-avatar">{% if session.lang == 'en' %}L{% else %}林{% endif %}</div>
+    <div class="profile-name">{% if session.lang == 'en' %}Linster{% else %}林良辉{% endif %}</div>
+    <div class="profile-desc">{% if session.lang == 'en' %}AI Researcher &amp; Tech Blogger{% else %}AI研究员 &amp; 技术博主{% endif %}</div>
+    <div class="profile-bio">{{ _t('about_me_desc') }}</div>
 </div>
 
 <div class="full-post-card" style="margin-bottom:12px;">
-    <h2>专业技能</h2>
+    <h2>{{ _t('skills') }}</h2>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
         <span class="tag">Python 专家</span>
         <span class="tag">JavaScript 高级</span>
@@ -27,34 +27,34 @@
 </div>
 
 <div class="full-post-card" style="margin-bottom:12px;">
-    <h2>职业经历</h2>
+    <h2>{{ _t('experience') }}</h2>
     <div style="margin-top:12px;">
-        <div class="info-row"><span class="info-label">2025-至今</span><span class="info-value">AI工程师 · 领导大语言模型研究团队</span></div>
-        <div class="info-row"><span class="info-label">2022-2024</span><span class="info-value">Web工程师 · 工业级Web应用系统开发</span></div>
-        <div class="info-row"><span class="info-label">2011-2021</span><span class="info-value">OPPO · 十年磨一剑</span></div>
-        <div class="info-row"><span class="info-label">2009</span><span class="info-value">软件工程师 · 九城集团实习</span></div>
+        <div class="info-row"><span class="info-label">2025-至今</span><span class="info-value">AI Engineer · LLM Research Lead</span></div>
+        <div class="info-row"><span class="info-label">2022-2024</span><span class="info-value">Web Engineer · Industrial Web Apps</span></div>
+        <div class="info-row"><span class="info-label">2011-2021</span><span class="info-value">OPPO · A Decade of Craftsmanship</span></div>
+        <div class="info-row"><span class="info-label">2009</span><span class="info-value">Software Engineer · The9 Internship</span></div>
     </div>
 </div>
 
 <div class="stats-grid">
-    <div class="stat-item"><div class="stat-num">10+</div><div class="stat-label">顶级论文</div></div>
-    <div class="stat-item"><div class="stat-num">15K+</div><div class="stat-label">博客读者</div></div>
-    <div class="stat-item"><div class="stat-num">20+</div><div class="stat-label">项目</div></div>
-    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">行业项目</div></div>
+    <div class="stat-item"><div class="stat-num">10+</div><div class="stat-label">{{ _t('top_papers') }}</div></div>
+    <div class="stat-item"><div class="stat-num">15K+</div><div class="stat-label">{{ _t('blog_readers') }}</div></div>
+    <div class="stat-item"><div class="stat-num">20+</div><div class="stat-label">{{ _t('projects') }}</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">{{ _t('projects') if session.lang != 'en' else 'Industry Projects' }}</div></div>
 </div>
 
 <div class="full-post-card" style="margin-bottom:12px;">
-    <h2>联系我</h2>
+    <h2>{{ _t('contact_me') }}</h2>
     <div style="margin-top:12px;">
-        <div class="info-row"><span class="info-label">邮箱</span><span class="info-value">237020882@qq.com</span></div>
+        <div class="info-row"><span class="info-label">{{ _t('email') }}</span><span class="info-value">237020882@qq.com</span></div>
         <div class="info-row"><span class="info-label">GitHub</span><span class="info-value"><a href="https://github.com/ssyveiqpl">github.com/ssyveiqpl</a></span></div>
-        <div class="info-row"><span class="info-label">位置</span><span class="info-value">中国 · 阳江</span></div>
+        <div class="info-row"><span class="info-label">{{ _t('location') }}</span><span class="info-value">China · Yangjiang</span></div>
     </div>
 </div>
 
 {% if links %}
 <div class="full-post-card">
-    <h2>友情链接</h2>
+    <h2>{{ _t('friend_links') }}</h2>
     <div style="margin-top:12px;">
         {% for link in links %}
         <div class="info-row">

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}友情链接{% endblock %}
+{% block title %}{{ _t('friend_links') }}{% endblock %}
 {% block content %}
 <div class="profile-card" style="padding:24px 20px;margin-bottom:16px;">
-    <h1>友情链接</h1>
-    <p style="color:var(--text-secondary);font-size:.85em;">优质站点推荐</p>
+    <h1>{{ _t('friend_links') }}</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;">{{ _t('links_desc') }}</p>
 </div>
 
 {% if links %}
@@ -17,6 +17,6 @@
     {% endfor %}
 </div>
 {% else %}
-<p class="empty">暂无友情链接</p>
+<p class="empty">{{ _t('no_links_yet') }}</p>
 {% endif %}
 {% endblock %}

@@ -1,42 +1,50 @@
 {% extends "base.html" %}
-{% block title %}首页{% endblock %}
+{% block title %}{{ _t('home') }}{% endblock %}
 {% block content %}
 <div class="profile-card" style="padding:40px 20px;margin-bottom:16px;">
-    <h1 style="font-size:1.4em;margin-bottom:8px;">探索 AI 世界无限可能</h1>
-    <p style="color:var(--text-secondary);font-size:.85em;margin-bottom:20px;">记录人工智能、机器学习与前沿技术的思考、实践与发现</p>
+    <h1 style="font-size:1.4em;margin-bottom:8px;">{{ _t('explore_ai') }}</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;margin-bottom:20px;">{{ _t('profile_bio') }}</p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-        <a href="{{ url_for('projects') }}" class="btn btn-primary">我的开源项目</a>
-        <a href="{{ url_for('articles') }}" class="btn btn-secondary">开始阅读</a>
+        <a href="{{ url_for('projects') }}" class="btn btn-primary">{{ _t('projects') }}</a>
+        <a href="{{ url_for('articles') }}" class="btn btn-secondary">{{ _t('start_reading') }}</a>
     </div>
 </div>
 
-<div class="section-title">最新文章</div>
+{% if announcements %}
+<div class="full-post-card" style="margin-bottom:16px;padding:12px 16px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-bullhorn" style="color:var(--wechat-green);"></i>
+        <span style="font-weight:600;font-size:.9em;">{{ announcements[0].title }}</span>
+    </div>
+    <p style="color:var(--text-secondary);font-size:.82em;margin-top:6px;">{{ announcements[0].content }}</p>
+</div>
+{% endif %}
+
+<div class="section-title">{{ _t('latest_posts') }}</div>
 
 {% for p in posts %}
 <div class="feed-card">
     <div class="feed-card-header">
         <div class="feed-avatar">AI</div>
         <div>
-            <div class="feed-author">AI探索笔记</div>
+            <div class="feed-author">{{ _t('site_name') }}</div>
             <div class="feed-time">{{ p.created_at }}</div>
         </div>
     </div>
     {% if p.cover_image %}
-    <div class="feed-cover" style="background-image:url('{{ p.cover_image }}');background-size:cover;background-position:center;" onclick="location.href='{{ url_for('post', post_id=p.id) }}'"></div>
-    {% else %}
-    <div class="feed-cover" onclick="location.href='{{ url_for('post', post_id=p.id) }}'">
-        <i class="fas fa-file-alt"></i>
-    </div>
+    <a href="{{ url_for('post', post_id=p.id) }}">
+        <img src="{{ p.cover_image }}" class="feed-cover" alt="cover" onerror="this.style.display='none'">
+    </a>
     {% endif %}
     {% if p.category %}<div style="padding:0 16px;"><span class="tag">{{ p.category }}</span></div>{% endif %}
     {% if p.tags %}<div class="feed-tags" style="padding:0 16px;">{% for t in p.tags.split(',') %}{% set tag = t.strip() %}{% if tag %}<span class="tag">{{ tag }}</span>{% endif %}{% endfor %}</div>{% endif %}
     <div class="feed-body">
         <div class="feed-title"><a href="{{ url_for('post', post_id=p.id) }}">{{ p.title }}</a></div>
-        <div class="feed-excerpt">点击阅读全文</div>
+        <div class="feed-excerpt">{{ _t('read_more') }}</div>
     </div>
 </div>
 {% else %}
-<p class="empty">还没有文章</p>
+<p class="empty">{{ _t('no_articles') }}</p>
 {% endfor %}
 
 <div class="full-post-card" style="margin-bottom:12px;">
@@ -45,9 +53,9 @@
             <i class="fas fa-user-astronaut"></i>
         </div>
         <div style="flex:2;min-width:240px;">
-            <h2 style="margin-bottom:8px;">关于我</h2>
-            <p style="color:var(--text-secondary);font-size:.85em;line-height:1.7;margin-bottom:8px;">我是林良辉，一名AI研究员兼技术博主。专注于大语言模型、计算机视觉和智能体系统的研究与应用。</p>
-            <a href="{{ url_for('about') }}" class="btn btn-secondary" style="font-size:.82em;">查看详情</a>
+            <h2 style="margin-bottom:8px;">{{ _t('about_me_title') }}</h2>
+            <p style="color:var(--text-secondary);font-size:.85em;line-height:1.7;margin-bottom:8px;">{{ _t('about_me_desc') }}</p>
+            <a href="{{ url_for('about') }}" class="btn btn-secondary" style="font-size:.82em;">{{ _t('view_details') }}</a>
         </div>
     </div>
 </div>

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ _t('ann_mgmt') }}{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1>{{ _t('ann_mgmt') }}</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">{{ _t('back_to_admin') }}</a>
+</div>
+
+<div class="form-card" style="margin-bottom:16px;">
+    <h2 style="margin-bottom:12px;">{% if edit_ann %}{{ _t('edit_ann') }}{% else %}{{ _t('publish_ann') }}{% endif %}</h2>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+        {% if edit_ann %}<input type="hidden" name="id" value="{{ edit_ann.id }}">{% endif %}
+        <label for="title">{{ _t('ann_title') }}</label>
+        <input type="text" name="title" id="title" placeholder="{{ _t('ann_title_ph') }}" value="{{ edit_ann.title if edit_ann else '' }}" required>
+        <label for="content">{{ _t('ann_content') }}</label>
+        <textarea name="content" id="content" rows="4" placeholder="{{ _t('ann_content_ph') }}" required style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:.9em;margin-bottom:12px;font-family:inherit;background:var(--bg);color:var(--text);resize:vertical;">{{ edit_ann.content if edit_ann else '' }}</textarea>
+        <button type="submit" class="btn btn-primary">{% if edit_ann %}{{ _t('update') }}{% else %}{{ _t('publish') }}{% endif %}</button>
+    </form>
+</div>
+
+{% if announcements %}
+<div class="table-wrap">
+    <table>
+        <tr>
+            <th>{{ _t('ann_title') }}</th>
+            <th>{{ _t('ann_content') }}</th>
+            <th>{{ _t('time') }}</th>
+            <th>{{ _t('operation') }}</th>
+        </tr>
+        {% for a in announcements %}
+        <tr>
+            <td>{{ a.title }}</td>
+            <td style="font-size:.82em;color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ a.content }}</td>
+            <td style="color:var(--text-muted);font-size:.82em;">{{ a.created_at }}</td>
+            <td class="actions">
+                <a href="{{ url_for('admin_announcements') }}?edit={{ a.id }}" class="btn btn-primary action-btn">{{ _t('edit') }}</a>
+                <form method="POST" action="{{ url_for('delete_announcement', ann_id=a.id) }}" onsubmit="return confirm('{{ _t('confirm_delete') }}')">
+                    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                    <button type="submit" class="btn btn-danger action-btn">{{ _t('delete') }}</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% else %}
+<p class="empty">{{ _t('no_announcements') }}</p>
+{% endif %}
+{% endblock %}

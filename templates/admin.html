@@ -1,52 +1,63 @@
 {% extends "base.html" %}
-{% block title %}管理后台{% endblock %}
+{% block title %}{{ _t('dashboard') }}{% endblock %}
 {% block content %}
 <div class="admin-header">
-    <h1>管理后台</h1>
+    <h1>{{ _t('dashboard') }}</h1>
 </div>
 
 <div class="stats-grid">
-    <div class="stat-item"><div class="stat-num">{{ stats.posts }}</div><div class="stat-label">已发布</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.drafts }}</div><div class="stat-label">草稿</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.comments }}</div><div class="stat-label">评论</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.pending_comments }}</div><div class="stat-label">待审核</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.messages }}</div><div class="stat-label">留言</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.views }}</div><div class="stat-label">阅读量</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.posts }}</div><div class="stat-label">{{ _t('published') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.drafts }}</div><div class="stat-label">{{ _t('draft') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.scheduled }}</div><div class="stat-label">{{ _t('scheduled') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.comments }}</div><div class="stat-label">{{ _t('comment_mgmt') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.pending_comments }}</div><div class="stat-label">{{ _t('pending_review') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.messages }}</div><div class="stat-label">{{ _t('msg_mgmt') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.likes }}</div><div class="stat-label">{{ _t('likes_label') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.total_views }}</div><div class="stat-label">{{ _t('total_views') }}</div></div>
 </div>
 
 <div class="admin-actions" style="margin-bottom:16px;flex-wrap:wrap;">
-    <a href="{{ url_for('create') }}" class="btn btn-primary">写新文章</a>
-    <a href="{{ url_for('admin_comments') }}" class="btn btn-secondary">评论管理</a>
-    <a href="{{ url_for('admin_categories') }}" class="btn btn-secondary">分类/标签</a>
-    <a href="{{ url_for('admin_series') }}" class="btn btn-secondary">系列管理</a>
-    <a href="{{ url_for('admin_links') }}" class="btn btn-secondary">友情链接</a>
-    <a href="{{ url_for('admin_stats') }}" class="btn btn-secondary">统计</a>
-    <a href="{{ url_for('import_posts') }}" class="btn btn-secondary">导入/导出</a>
-    <a href="{{ url_for('change_password') }}" class="btn btn-secondary">修改密码</a>
+    <a href="{{ url_for('create') }}" class="btn btn-primary">{{ _t('write_new') }}</a>
+    <a href="{{ url_for('admin_comments') }}" class="btn btn-secondary">{{ _t('comment_mgmt') }}</a>
+    <a href="{{ url_for('admin_categories') }}" class="btn btn-secondary">{{ _t('cat_tag_mgmt') }}</a>
+    <a href="{{ url_for('admin_series') }}" class="btn btn-secondary">{{ _t('series_mgmt') }}</a>
+    <a href="{{ url_for('admin_links') }}" class="btn btn-secondary">{{ _t('friend_links_mgmt') }}</a>
+    <a href="{{ url_for('admin_announcements') }}" class="btn btn-secondary">{{ _t('ann_mgmt') }}</a>
+    <a href="{{ url_for('admin_stats') }}" class="btn btn-secondary">{{ _t('stats') }}</a>
+    <a href="{{ url_for('admin_messages') }}" class="btn btn-secondary">{{ _t('msg_mgmt') }}</a>
+    <a href="{{ url_for('import_posts') }}" class="btn btn-secondary">{{ _t('import_export') }}</a>
+    <a href="{{ url_for('backup_db') }}" class="btn btn-secondary">{{ _t('backup') }}</a>
+    <a href="{{ url_for('change_password') }}" class="btn btn-secondary">{{ _t('change_pwd') }}</a>
 </div>
 {% if posts %}
 <div class="table-wrap">
     <table>
         <tr>
-            <th>标题</th>
-            <th>状态</th>
-            <th>分类</th>
-            <th>标签</th>
-            <th>时间</th>
-            <th>操作</th>
+            <th>{{ _t('title_col') }}</th>
+            <th>{{ _t('status') }}</th>
+            <th>{{ _t('category') }}</th>
+            <th>{{ _t('tag') }}</th>
+            <th>{{ _t('views_col') }}</th>
+            <th>{{ _t('time') }}</th>
+            <th>{{ _t('operation') }}</th>
         </tr>
         {% for p in posts %}
-        <tr>
-            <td><a href="{{ url_for('post', post_id=p.id) }}" style="color:var(--text);text-decoration:none;">{{ p.title }}</a></td>
-            <td style="font-size:.82em;">{% if p.status == 'draft' %}<span style="color:var(--text-muted);">草稿</span>{% else %}<span style="color:var(--wechat-green);">已发布</span>{% endif %}</td>
-            <td style="font-size:.82em;">{% if p.category %}<span class="tag">{{ p.category }}</span>{% else %}<span style="color:var(--text-muted);">无</span>{% endif %}</td>
-            <td style="font-size:.82em;">{% if p.tags %}{% for t in p.tags.split(',') %}{% set tag = t.strip() %}{% if tag %}<span class="tag">{{ tag }}</span>{% endif %}{% endfor %}{% else %}<span style="color:var(--text-muted);">无</span>{% endif %}</td>
+        <tr style="{% if p.pinned %}background:var(--code-bg);{% endif %}">
+            <td>{% if p.pinned %}<span class="pinned-badge" title="{{ _t('pinned') }}" style="margin-right:4px;"></span>{% endif %}<a href="{{ url_for('post', post_id=p.id) }}" style="color:var(--text);text-decoration:none;">{{ p.title }}</a></td>
+            <td style="font-size:.82em;">
+                {% if p.status == 'draft' %}<span style="color:var(--text-muted);">{{ _t('draft') }}</span>
+                {% elif p.status == 'scheduled' %}<span style="color:var(--primary);">{{ _t('scheduled') }}</span>
+                {% else %}<span style="color:var(--wechat-green);">{{ _t('published') }}</span>{% endif %}
+            </td>
+            <td style="font-size:.82em;">{% if p.category %}<span class="tag">{{ p.category }}</span>{% else %}<span style="color:var(--text-muted);">{{ _t('no_category') }}</span>{% endif %}</td>
+            <td style="font-size:.82em;">{% if p.tags %}{% for t in p.tags.split(',') %}{% set tag = t.strip() %}{% if tag %}<span class="tag">{{ tag }}</span>{% endif %}{% endfor %}{% else %}<span style="color:var(--text-muted);">{{ _t('no_tags') }}</span>{% endif %}</td>
+            <td style="color:var(--text-muted);font-size:.76em;text-align:center;">{{ p.views or 0 }}</td>
             <td style="color:var(--text-muted);font-size:.82em;">{{ p.created_at }}</td>
             <td class="actions">
-                <a href="{{ url_for('edit', post_id=p.id) }}" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">编辑</a>
-                <form method="POST" action="{{ url_for('delete', post_id=p.id) }}" style="display:inline">
+                <a href="{{ url_for('edit', post_id=p.id) }}" class="btn btn-primary action-btn">{{ _t('edit') }}</a>
+                <form method="POST" action="{{ url_for('delete', post_id=p.id) }}" onsubmit="return confirm('{{ _t('confirm_delete') }}')">
                     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
+                    <button type="submit" class="btn btn-danger action-btn">{{ _t('delete') }}</button>
                 </form>
             </td>
         </tr>
@@ -54,6 +65,6 @@
     </table>
 </div>
 {% else %}
-<p class="empty">还没有文章</p>
+<p class="empty">{{ _t('no_articles') }}</p>
 {% endif %}
 {% endblock %}

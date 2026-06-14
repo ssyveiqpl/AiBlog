@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}系列管理{% endblock %}
+{% block title %}{{ _t('series_mgmt_title') }}{% endblock %}
 {% block content %}
 <div class="admin-header">
-    <h1>系列管理</h1>
-    <a href="{{ url_for('admin') }}" class="btn btn-secondary">&larr; 返回后台</a>
+    <h1>{{ _t('series_mgmt_title') }}</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">{{ _t('back_to_admin') }}</a>
 </div>
 
 <div class="form-card" style="margin-bottom:16px;">
-    <h2 style="margin-bottom:12px;">{% if edit_series %}编辑系列{% else %}创建系列{% endif %}</h2>
+    <h2 style="margin-bottom:12px;">{% if edit_series %}{{ _t('edit_series') }}{% else %}{{ _t('create_series') }}{% endif %}</h2>
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
         {% if edit_series %}<input type="hidden" name="id" value="{{ edit_series.id }}">{% endif %}
-        <label for="name">名称</label>
-        <input type="text" name="name" id="name" placeholder="系列名称" value="{{ edit_series.name if edit_series else '' }}" required>
-        <label for="description">描述 <small style="color:var(--text-muted);font-weight:400;">选填</small></label>
-        <input type="text" name="description" id="description" placeholder="系列描述" value="{{ edit_series.description if edit_series else '' }}">
-        <button type="submit" class="btn btn-primary">{% if edit_series %}更新{% else %}创建{% endif %}</button>
+        <label for="name">{{ _t('name') }}</label>
+        <input type="text" name="name" id="name" placeholder="{{ _t('series_name_ph') }}" value="{{ edit_series.name if edit_series else '' }}" required>
+        <label for="description">{{ _t('description') }} <small style="color:var(--text-muted);font-weight:400;">{{ _t('optional') }}</small></label>
+        <input type="text" name="description" id="description" placeholder="{{ _t('series_desc_ph') }}" value="{{ edit_series.description if edit_series else '' }}">
+        <button type="submit" class="btn btn-primary">{% if edit_series %}{{ _t('update') }}{% else %}{{ _t('create') }}{% endif %}</button>
     </form>
 </div>
 
@@ -23,10 +23,10 @@
 <div class="table-wrap">
     <table>
         <tr>
-            <th>名称</th>
-            <th>描述</th>
-            <th>文章数</th>
-            <th>操作</th>
+            <th>{{ _t('name') }}</th>
+            <th>{{ _t('description') }}</th>
+            <th>{{ _t('post_count') }}</th>
+            <th>{{ _t('operation') }}</th>
         </tr>
         {% for s in series_list %}
         <tr>
@@ -34,10 +34,10 @@
             <td style="font-size:.82em;color:var(--text-muted);">{{ s.description or '-' }}</td>
             <td>{{ s.post_count }}</td>
             <td class="actions">
-                <a href="{{ url_for('admin_series') }}?edit={{ s.id }}" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">编辑</a>
-                <form method="POST" action="{{ url_for('delete_series', series_id=s.id) }}" style="display:inline">
+                <a href="{{ url_for('admin_series') }}?edit={{ s.id }}" class="btn btn-primary action-btn">{{ _t('edit') }}</a>
+                <form method="POST" action="{{ url_for('delete_series', series_id=s.id) }}" onsubmit="return confirm('{{ _t('confirm_delete_series') }}')">
                     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？相关文章将取消归属')">删除</button>
+                    <button type="submit" class="btn btn-danger action-btn">{{ _t('delete') }}</button>
                 </form>
             </td>
         </tr>

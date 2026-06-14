@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}项目{% endblock %}
+{% block title %}{{ _t('projects') }}{% endblock %}
 {% block content %}
 <div class="profile-card" style="padding:24px 20px;margin-bottom:16px;">
-    <h1>我的项目</h1>
-    <p style="color:var(--text-secondary);font-size:.85em;">// 探索人工智能、机器学习与Web开发的创新项目</p>
+    <h1>{{ _t('project_title') }}</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;">{{ _t('project_desc') }}</p>
 </div>
 
 <div class="filter-bar" id="filterBar">
-    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn active" data-filter="all">{{ _t('all') }}</button>
     <button class="filter-btn" data-filter="ai">AI/ML</button>
-    <button class="filter-btn" data-filter="web">Web开发</button>
-    <button class="filter-btn" data-filter="tool">工具</button>
-    <button class="filter-btn" data-filter="research">研究</button>
+    <button class="filter-btn" data-filter="web">Web</button>
+    <button class="filter-btn" data-filter="tool">{{ _t('filter_tools') }}</button>
+    <button class="filter-btn" data-filter="research">{{ _t('filter_research') }}</button>
 </div>
 
 {% set items = [
@@ -47,7 +47,7 @@
         <div class="project-links">
             <a href="{{ item.github }}">GitHub</a>
             {% if item.demo != "javascript:void(0)" %}
-            <a href="{{ item.demo }}" target="_blank">在线体验</a>
+            <a href="{{ item.demo }}" target="_blank">{{ _t('demo') }}</a>
             {% endif %}
         </div>
     </div>

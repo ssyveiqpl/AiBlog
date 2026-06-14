@@ -1,36 +1,36 @@
 {% extends "base.html" %}
-{% block title %}统计{% endblock %}
+{% block title %}{{ _t('stats') }}{% endblock %}
 {% block content %}
 <div class="admin-header">
-    <h1>网站统计</h1>
-    <a href="{{ url_for('admin') }}" class="btn btn-secondary">&larr; 返回后台</a>
+    <h1>{{ _t('site_stats') }}</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">{{ _t('back_to_admin') }}</a>
 </div>
 
 <div class="stats-grid">
-    <div class="stat-item"><div class="stat-num">{{ stats.posts }}</div><div class="stat-label">已发布</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.drafts }}</div><div class="stat-label">草稿</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.comments }}</div><div class="stat-label">评论</div></div>
-    <div class="stat-item"><div class="stat-num">{{ stats.views }}</div><div class="stat-label">总阅读</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.posts }}</div><div class="stat-label">{{ _t('published') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.drafts }}</div><div class="stat-label">{{ _t('draft') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.comments }}</div><div class="stat-label">{{ _t('comment_mgmt') }}</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.views }}</div><div class="stat-label">{{ _t('total_views') }}</div></div>
 </div>
 
 <div class="full-post-card" style="margin-bottom:12px;">
-    <h2>热门文章</h2>
+    <h2>{{ _t('hot_articles') }}</h2>
     {% if top_posts %}
     <div style="margin-top:12px;">
         {% for p in top_posts %}
         <div class="info-row">
             <span class="info-value"><a href="{{ url_for('post', post_id=p.id) }}" style="color:var(--text);text-decoration:none;">{{ p.title }}</a></span>
-            <span class="feed-time">{{ p.views }} 次阅读</span>
+            <span class="feed-time">{{ p.views }} {{ _t('times_read') }}</span>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <p class="empty">暂无数据</p>
+    <p class="empty">{{ _t('no_data') }}</p>
     {% endif %}
 </div>
 
 <div class="full-post-card">
-    <h2>最近30天阅读趋势</h2>
+    <h2>{{ _t('recent_30d') }}</h2>
     {% if daily_views %}
     <div style="margin-top:12px;">
         {% for d in daily_views %}
@@ -46,7 +46,7 @@
         {% endfor %}
     </div>
     {% else %}
-    <p class="empty">暂无数据</p>
+    <p class="empty">{{ _t('no_data') }}</p>
     {% endif %}
 </div>
 {% endblock %}

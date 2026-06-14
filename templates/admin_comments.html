@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}评论管理{% endblock %}
+{% block title %}{{ _t('comment_mgmt') }}{% endblock %}
 {% block content %}
 <div class="admin-header">
-    <h1>评论管理</h1>
-    <a href="{{ url_for('admin') }}" class="btn btn-secondary">&larr; 返回后台</a>
+    <h1>{{ _t('comment_mgmt') }}</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">{{ _t('back_to_admin') }}</a>
 </div>
 
 {% if pending %}
-<div class="section-title">待审核 ({{ pending|length }})</div>
+<div class="section-title">{{ _t('pending_review') }} ({{ pending|length }})</div>
 <div class="table-wrap" style="margin-bottom:16px;">
     <table>
         <tr>
-            <th>文章</th>
-            <th>用户</th>
-            <th>内容</th>
-            <th>时间</th>
-            <th>操作</th>
+            <th>{{ _t('post_col') }}</th>
+            <th>{{ _t('user_col') }}</th>
+            <th>{{ _t('content_col') }}</th>
+            <th>{{ _t('time') }}</th>
+            <th>{{ _t('operation') }}</th>
         </tr>
         {% for c in pending %}
         <tr>
@@ -24,13 +24,13 @@
             <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ c.content }}</td>
             <td style="font-size:.82em;color:var(--text-muted);">{{ c.created_at }}</td>
             <td class="actions">
-                <form method="POST" action="{{ url_for('approve_comment', comment_id=c.id) }}" style="display:inline">
+                <form method="POST" action="{{ url_for('approve_comment', comment_id=c.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    <button type="submit" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">通过</button>
+                    <button type="submit" class="btn btn-primary action-btn">{{ _t('approve') }}</button>
                 </form>
-                <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" style="display:inline">
+                <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" onsubmit="return confirm('{{ _t('confirm_delete') }}')">
                     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
+                    <button type="submit" class="btn btn-danger action-btn">{{ _t('delete') }}</button>
                 </form>
             </td>
         </tr>
@@ -40,15 +40,15 @@
 {% endif %}
 
 {% if approved %}
-<div class="section-title">已审核 ({{ approved|length }})</div>
+<div class="section-title">{{ _t('approved') }} ({{ approved|length }})</div>
 <div class="table-wrap">
     <table>
         <tr>
-            <th>文章</th>
-            <th>用户</th>
-            <th>内容</th>
-            <th>时间</th>
-            <th>操作</th>
+            <th>{{ _t('post_col') }}</th>
+            <th>{{ _t('user_col') }}</th>
+            <th>{{ _t('content_col') }}</th>
+            <th>{{ _t('time') }}</th>
+            <th>{{ _t('operation') }}</th>
         </tr>
         {% for c in approved %}
         <tr>
@@ -57,9 +57,9 @@
             <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ c.content }}</td>
             <td style="font-size:.82em;color:var(--text-muted);">{{ c.created_at }}</td>
             <td class="actions">
-                <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" style="display:inline">
+                <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" onsubmit="return confirm('{{ _t('confirm_delete') }}')">
                     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-                    <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
+                    <button type="submit" class="btn btn-danger action-btn">{{ _t('delete') }}</button>
                 </form>
             </td>
         </tr>
@@ -69,6 +69,6 @@
 {% endif %}
 
 {% if not pending and not approved %}
-<p class="empty">暂无评论</p>
+<p class="empty">{{ _t('no_comments') }}</p>
 {% endif %}
 {% endblock %}
