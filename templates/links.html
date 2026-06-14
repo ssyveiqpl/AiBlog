@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}友情链接{% endblock %}
+{% block content %}
+<div class="profile-card" style="padding:24px 20px;margin-bottom:16px;">
+    <h1>友情链接</h1>
+    <p style="color:var(--text-secondary);font-size:.85em;">优质站点推荐</p>
+</div>
+
+{% if links %}
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">
+    {% for link in links %}
+    <div class="full-post-card" style="margin-bottom:0;">
+        <h3 style="margin-bottom:6px;">{{ link.name }}</h3>
+        {% if link.description %}<p style="font-size:.85em;color:var(--text-secondary);margin-bottom:8px;">{{ link.description }}</p>{% endif %}
+        <a href="{{ link.url }}" target="_blank" rel="noopener" style="color:var(--wechat-green);font-size:.85em;text-decoration:none;word-break:break-all;">{{ link.url }} &rarr;</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="empty">暂无友情链接</p>
+{% endif %}
+{% endblock %}

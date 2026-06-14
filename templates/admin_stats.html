@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}统计{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1>网站统计</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">&larr; 返回后台</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-item"><div class="stat-num">{{ stats.posts }}</div><div class="stat-label">文章</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.comments }}</div><div class="stat-label">评论</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.messages }}</div><div class="stat-label">留言</div></div>
+    <div class="stat-item"><div class="stat-num">{{ stats.views }}</div><div class="stat-label">总阅读</div></div>
+</div>
+
+<div class="full-post-card" style="margin-bottom:12px;">
+    <h2>热门文章</h2>
+    {% if top_posts %}
+    <div style="margin-top:12px;">
+        {% for p in top_posts %}
+        <div class="info-row">
+            <span class="info-value"><a href="{{ url_for('post', post_id=p.id) }}" style="color:var(--text);text-decoration:none;">{{ p.title }}</a></span>
+            <span class="feed-time">{{ p.views }} 次阅读</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">暂无数据</p>
+    {% endif %}
+</div>
+
+<div class="full-post-card">
+    <h2>最近30天阅读趋势</h2>
+    {% if daily_views %}
+    <div style="margin-top:12px;">
+        {% for d in daily_views %}
+        <div class="info-row">
+            <span class="info-label">{{ d.date }}</span>
+            <span class="info-value">
+                <div style="height:20px;background:var(--code-bg);border-radius:3px;overflow:hidden;">
+                    <div style="height:100%;background:var(--wechat-green);width:{{ (d.total / daily_views[0].total * 100)|int if daily_views[0].total > 0 else 0 }}%;border-radius:3px;min-width:4px;"></div>
+                </div>
+            </span>
+            <span class="feed-time">{{ d.total }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">暂无数据</p>
+    {% endif %}
+</div>
+{% endblock %}

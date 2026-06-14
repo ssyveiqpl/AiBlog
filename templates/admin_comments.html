@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}评论管理{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1>评论管理</h1>
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">&larr; 返回后台</a>
+</div>
+
+{% if pending %}
+<div class="section-title">待审核 ({{ pending|length }})</div>
+<div class="table-wrap" style="margin-bottom:16px;">
+    <table>
+        <tr>
+            <th>文章</th>
+            <th>用户</th>
+            <th>内容</th>
+            <th>时间</th>
+            <th>操作</th>
+        </tr>
+        {% for c in pending %}
+        <tr>
+            <td><a href="{{ url_for('post', post_id=c.post_id) }}" style="color:var(--text);text-decoration:none;">{{ c.post_title[:20] }}</a></td>
+            <td>{{ c.name }}</td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ c.content }}</td>
+            <td style="font-size:.82em;color:var(--text-muted);">{{ c.created_at }}</td>
+            <td class="actions">
+                <form method="POST" action="{{ url_for('approve_comment', comment_id=c.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-primary" style="padding:4px 12px;font-size:.82em;">通过</button>
+                </form>
+                <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if approved %}
+<div class="section-title">已审核 ({{ approved|length }})</div>
+<div class="table-wrap">
+    <table>
+        <tr>
+            <th>文章</th>
+            <th>用户</th>
+            <th>内容</th>
+            <th>时间</th>
+            <th>操作</th>
+        </tr>
+        {% for c in approved %}
+        <tr>
+            <td><a href="{{ url_for('post', post_id=c.post_id) }}" style="color:var(--text);text-decoration:none;">{{ c.post_title[:20] }}</a></td>
+            <td>{{ c.name }}</td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ c.content }}</td>
+            <td style="font-size:.82em;color:var(--text-muted);">{{ c.created_at }}</td>
+            <td class="actions">
+                <form method="POST" action="{{ url_for('delete_comment', comment_id=c.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-danger" style="padding:4px 12px;font-size:.82em;" onclick="return confirm('确定删除？')">删除</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+{% if not pending and not approved %}
+<p class="empty">暂无评论</p>
+{% endif %}
+{% endblock %}

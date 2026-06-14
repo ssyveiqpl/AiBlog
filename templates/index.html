@@ -12,7 +12,7 @@
 
 <div class="section-title">最新文章</div>
 
-{% for p in posts[:3] %}
+{% for p in posts %}
 <div class="feed-card">
     <div class="feed-card-header">
         <div class="feed-avatar">AI</div>
@@ -21,9 +21,15 @@
             <div class="feed-time">{{ p.created_at }}</div>
         </div>
     </div>
+    {% if p.cover_image %}
+    <div class="feed-cover" style="background-image:url('{{ p.cover_image }}');background-size:cover;background-position:center;" onclick="location.href='{{ url_for('post', post_id=p.id) }}'"></div>
+    {% else %}
     <div class="feed-cover" onclick="location.href='{{ url_for('post', post_id=p.id) }}'">
         <i class="fas fa-file-alt"></i>
     </div>
+    {% endif %}
+    {% if p.category %}<div style="padding:0 16px;"><span class="tag">{{ p.category }}</span></div>{% endif %}
+    {% if p.tags %}<div class="feed-tags" style="padding:0 16px;">{% for t in p.tags.split(',') %}{% set tag = t.strip() %}{% if tag %}<span class="tag">{{ tag }}</span>{% endif %}{% endfor %}</div>{% endif %}
     <div class="feed-body">
         <div class="feed-title"><a href="{{ url_for('post', post_id=p.id) }}">{{ p.title }}</a></div>
         <div class="feed-excerpt">点击阅读全文</div>

@@ -311,3 +311,108 @@ h3 { font-size: 1em; font-weight: 600; }
     color: var(--text-secondary);
 }
 .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ===== Search Box ===== */
+.search-box {
+    background: var(--bg-card); border-radius: 10px; padding: 12px 16px;
+    box-shadow: var(--shadow); margin-bottom: 12px; transition: background .3s;
+}
+.search-box form { position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 12px; color: var(--text-muted); font-size: .9em; }
+.search-input {
+    width: 100%; padding: 10px 12px 10px 36px; border: 1px solid var(--border);
+    border-radius: 6px; font-size: .9em; font-family: inherit;
+    background: var(--bg); color: var(--text); transition: border .3s;
+    outline: none;
+}
+.search-input:focus { border-color: var(--wechat-green); }
+.search-clear {
+    position: absolute; right: 12px; color: var(--text-muted); text-decoration: none;
+    font-size: .9em; cursor: pointer;
+}
+.search-clear:hover { color: var(--text-secondary); }
+
+/* ===== Pagination ===== */
+.pagination {
+    display: flex; justify-content: center; gap: 6px; margin: 24px 0; flex-wrap: wrap;
+}
+.page-btn {
+    padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-secondary); font-size: .85em;
+    text-decoration: none; transition: all .2s;
+}
+.page-btn:hover { border-color: var(--wechat-green); color: var(--wechat-green); }
+.page-btn.active { background: var(--wechat-green); color: #fff; border-color: var(--wechat-green); }
+
+
+/* ===== Tag Bar ===== */
+.tag-bar {
+    display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+/* ===== Feed Tags ===== */
+.feed-tags { padding-bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ===== Comment ===== */
+.comment-card {
+    background: var(--bg-card); border-radius: 10px; padding: 20px;
+    box-shadow: var(--shadow); margin-top: 16px; transition: background .3s;
+}
+.comment-card h2 { font-size: 1em; margin-bottom: 16px; }
+
+/* ===== Editor ===== */
+.editor-wrapper {
+    display: flex; gap: 10px; margin-bottom: 16px; min-height: 400px;
+    border-radius: 6px; overflow: hidden; border: 1px solid var(--border);
+}
+.editor-pane {
+    flex: 1; display: flex; flex-direction: column; position: relative;
+    min-width: 0;
+}
+.editor-pane textarea {
+    flex: 1; border: none; border-radius: 0; margin-bottom: 0; resize: none;
+    min-height: 380px; padding-bottom: 40px;
+}
+.editor-pane textarea:focus { border: none; box-shadow: none; }
+.editor-toolbar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--bg); border-top: 1px solid var(--border-light);
+    padding: 6px 10px; display: flex; gap: 6px;
+}
+.editor-btn {
+    background: none; border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 10px; cursor: pointer; color: var(--text-secondary); font-size: .9em;
+    transition: all .2s;
+}
+.editor-btn:hover { border-color: var(--wechat-green); color: var(--wechat-green); }
+.preview-pane {
+    flex: 1; padding: 14px; overflow-y: auto; background: var(--bg);
+    font-size: .88em; line-height: 1.7; color: var(--text-secondary);
+    min-width: 0; border-left: 1px solid var(--border);
+}
+.preview-placeholder {
+    display: flex; align-items: center; justify-content: center;
+    height: 100%; color: var(--text-muted); font-size: .9em;
+}
+.preview-loading { color: var(--text-muted); font-size: .85em; }
+.preview-pane h1, .preview-pane h2, .preview-pane h3 { color: var(--text); margin-bottom: 8px; }
+.preview-pane h1 { font-size: 1.3em; }
+.preview-pane h2 { font-size: 1.1em; }
+.preview-pane h3 { font-size: 1em; }
+.preview-pane p { margin-bottom: .8em; }
+.preview-pane pre {
+    background: var(--code-bg); padding: 12px; border-radius: 6px;
+    overflow-x: auto; margin-bottom: .8em; font-size: .85em;
+}
+.preview-pane code { font-size: .9em; }
+.preview-pane img { max-width: 100%; border-radius: 6px; margin: 8px 0; }
+.preview-pane a { color: var(--wechat-green); }
+.preview-pane strong { color: var(--text); }
+
+/* ===== Cover image on feed cards ===== */
+.feed-cover.has-image { background-size: cover; background-position: center; }
+
+/* ===== Select / dropdown ===== */
+select { font-family: inherit; }
+

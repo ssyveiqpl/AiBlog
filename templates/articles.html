@@ -13,7 +13,32 @@
     <div class="stat-item"><div class="stat-num">{{ count * 3 }}</div><div class="stat-label">评论</div></div>
 </div>
 
-<div class="section-title">全部文章</div>
+<div class="search-box">
+    <form method="GET" action="{{ url_for('search') }}">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" name="q" placeholder="搜索文章标题或内容..." value="{{ q }}" class="search-input">
+        {% if q %}<a href="{{ url_for('articles') }}" class="search-clear"><i class="fas fa-times"></i></a>{% endif %}
+    </form>
+</div>
+
+{% if categories %}
+<div class="tag-bar">
+    <a href="{{ url_for('articles') }}" class="filter-btn {% if not active_cat and not active_tag and not q %}active{% endif %}">全部</a>
+    {% for c in categories %}
+    <a href="{{ url_for('articles', cat=c) }}" class="filter-btn {% if active_cat == c %}active{% endif %}">{{ c }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if tags %}
+<div class="tag-bar">
+    {% for t in tags %}
+    <a href="{{ url_for('articles', tag=t, cat=active_cat) }}" class="filter-btn {% if active_tag == t %}active{% endif %}">{{ t }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="section-title">{% if q %}搜索结果{% elif active_tag %}标签: {{ active_tag }}{% elif active_cat %}分类: {{ active_cat }}{% else %}全部文章{% endif %}</div>
 
 {% for p in posts %}
 <div class="feed-card">
@@ -24,6 +49,18 @@
             <div class="feed-time">{{ p.created_at }}</div>
         </div>
     </div>
+    {% if p.cover_image %}
+    <div class="feed-cover" style="background-image:url('{{ p.cover_image }}');background-size:cover;background-position:center;"></div>
+    {% endif %}
+    {% if p.category %}<div style="padding:0 16px;"><span class="tag">{{ p.category }}</span></div>{% endif %}
+    {% if p.tags %}
+    <div class="feed-tags" style="padding:0 16px;">
+        {% for t in p.tags.split(',') %}
+        {% set tag = t.strip() %}
+        {% if tag %}<span class="tag">{{ tag }}</span>{% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="feed-body">
         <a href="{{ url_for('post', post_id=p.id) }}" style="color:var(--wechat-green);font-size:.85em;text-decoration:none;">阅读全文 &rarr;</a>
     </div>
@@ -31,4 +68,18 @@
 {% else %}
 <p class="empty">还没有文章</p>
 {% endfor %}
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="{{ url_for('articles', page=page-1, q=q, tag=active_tag, cat=active_cat) }}" class="page-btn">&laquo; 上一页</a>
+    {% endif %}
+    {% for p in range(1, total_pages + 1) %}
+    <a href="{{ url_for('articles', page=p, q=q, tag=active_tag, cat=active_cat) }}" class="page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+    {% if page < total_pages %}
+    <a href="{{ url_for('articles', page=page+1, q=q, tag=active_tag, cat=active_cat) }}" class="page-btn">下一页 &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}

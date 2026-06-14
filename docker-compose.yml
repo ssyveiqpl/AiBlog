@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  blog:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./blog.db:/app/blog.db
+      - ./static/uploads:/app/static/uploads
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}AI探索笔记{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlightStyle">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -15,6 +16,7 @@
                 {% if session.logged_in %}
                     <a href="{{ url_for('admin') }}" style="color:var(--text-secondary);text-decoration:none;font-size:.82em;">管理</a>
                 {% endif %}
+                <a href="{{ url_for('rss_feed') }}" target="_blank" title="RSS 订阅" style="color:var(--text-secondary);text-decoration:none;font-size:.85em;"><i class="fas fa-rss"></i></a>
                 <button class="theme-btn" id="themeBtn" title="切换主题">🌙</button>
             </div>
         </div>
@@ -39,13 +41,17 @@
                 <i class="fas fa-newspaper"></i>
                 <span>首页</span>
             </a>
-            <a href="{{ url_for('articles') }}" class="tab-item {% if request.endpoint == 'articles' %}active{% endif %}">
+            <a href="{{ url_for('articles') }}" class="tab-item {% if request.endpoint in ('articles', 'search') %}active{% endif %}">
                 <i class="fas fa-file-alt"></i>
                 <span>文章</span>
             </a>
-            <a href="{{ url_for('projects') }}" class="tab-item {% if request.endpoint == 'projects' %}active{% endif %}">
-                <i class="fas fa-code-branch"></i>
-                <span>项目</span>
+            <a href="{{ url_for('archive') }}" class="tab-item {% if request.endpoint == 'archive' %}active{% endif %}">
+                <i class="fas fa-archive"></i>
+                <span>归档</span>
+            </a>
+            <a href="{{ url_for('categories') }}" class="tab-item {% if request.endpoint == 'categories' %}active{% endif %}">
+                <i class="fas fa-folder"></i>
+                <span>分类</span>
             </a>
             <a href="{{ url_for('message') }}" class="tab-item {% if request.endpoint == 'message' %}active{% endif %}">
                 <i class="fas fa-comment-dots"></i>
@@ -58,6 +64,7 @@
         </div>
     </nav>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function() {
     var btn = document.getElementById('themeBtn');
@@ -66,13 +73,19 @@
     if (stored === 'dark') {
         body.classList.add('dark');
         btn.textContent = '☀️';
+        document.getElementById('highlightStyle').href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
     }
     btn.addEventListener('click', function() {
         var isDark = body.classList.toggle('dark');
         btn.textContent = isDark ? '☀️' : '🌙';
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        document.getElementById('highlightStyle').href = isDark
+            ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+            : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
     });
+    hljs.highlightAll();
 })();
 </script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

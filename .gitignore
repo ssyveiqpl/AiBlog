@@ -1,6 +1,11 @@
-blog.db
+*.db
 __pycache__/
 *.pyc
 .env
+static/uploads/*
+!static/uploads/.gitkeep
+*.egg-info/
+dist/
+build/
 .venv/
 venv/
